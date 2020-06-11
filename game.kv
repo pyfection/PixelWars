@@ -1,0 +1,39 @@
+RelativeLayout:
+    Image:
+        id: base_map
+        allow_stretch: True
+    Image:
+        id: map
+        allow_stretch: True
+    Label:
+        id: tps
+        text: "0"
+        size: 50, 30
+        size_hint: None, None
+    BoxLayout:
+        id: scoreboard
+        Label:
+            id: ai_names
+            width: 100
+            size_hint_x: None
+            markup: True
+            bold: True
+        Label:
+            id: eps
+            width: 100
+            size_hint_x: None
+            markup: True
+            bold: True
+        Label:
+            id: territories
+            width: 100
+            size_hint_x: None
+            markup: True
+            bold: True
+        Label:
+            id: units
+            width: 100
+            size_hint_x: None
+            markup: True
+            bold: True
+        Widget:
