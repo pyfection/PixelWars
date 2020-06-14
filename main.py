@@ -142,12 +142,10 @@ class GameApp(App):
             self.root.ids.territories.text += f"[color=%02x%02x%02x]{self.players_scores[pid]}[/color]\n" % player.color
             self.root.ids.units.text += f"[color=%02x%02x%02x]{len(self.armies[pid])}[/color]\n" % player.color
             self.root.ids.eps.text += f"[color=%02x%02x%02x]{eps}[/color]\n" % player.color
-            # self.root.ids.units.text += f"[color=%02x%02x%02x]{}[/color]\n" % player.color
         print("Update players took:", time()-_s)
 
         _s = time()
         # Process player movement orders
-        moved_armies = set()
         random.shuffle(total_moves)
         while total_moves:
             pid, aid, x, y = total_moves.pop(0)
@@ -158,10 +156,8 @@ class GameApp(App):
             owner = self.territories[x, y, 1]
             allied_coord = self.armies[pid][aid]
             if owner == -1:  # Territory without owner
-                moved_armies.add((allied_coord, pid))
                 self.move_army(pid, aid, allied_coord, (x, y))
             elif owner == pid:  # Own territory, simply move army
-                moved_armies.add((allied_coord, pid))
                 self.move_army(pid, aid, allied_coord, (x, y))
             else:  # Occupied by enemy
                 enemy_pid = owner
@@ -178,17 +174,13 @@ class GameApp(App):
                     if enemy_armies:
                         enemy_aid = enemy_armies[0]
                         self.army_updates.append((enemy_pid, enemy_aid, (x, y), None))
-                        if len(enemy_armies) == 1:  # Last army was defeated
-                            self.armies[pid].pop(aid)
-                            for aid_ in allied_armies:
-                                moved_armies.add((allied_coord, pid))
-                                self.move_army(pid, aid_, allied_coord, (x, y))
                         self.armies[enemy_pid].pop(enemy_aid)
-                            # self.army_updates.append((pid, aid, allied_coord, None))
-                            # for aid_ in allied_armies[1:]:
-                            #     self.army_updates.append((pid, aid_, allied_coord, (x, y)))
-                            # self.change_owner(x, y, pid)
+                    if len(enemy_armies) <= 1:  # Last army was defeated or none present
+                        # self.armies[pid].pop(aid)
+                        for aid_ in allied_armies:
+                            self.move_army(pid, aid_, allied_coord, (x, y))
                 else:  # Win for defender (even if attacker and defender roll are the same)
+                    self.armies[pid].pop(aid)
                     self.army_updates.append((pid, aid, allied_coord, None))
         print("Process player moves took:", time()-_s)
 
@@ -237,12 +229,12 @@ if __name__ == '__main__':
     app = GameApp(
         map_path='assets/maps/europe1.png',
         players=(
-            (RandomAI, (255, 0, 0)),
-            (RandomAI, (255, 255, 0)),
-            (RandomAI, (255, 0, 255)),
-            (RandomAI, (0, 150, 0)),
-            (RandomAI, (158, 66, 255)),
-            (RandomAI, (150, 0, 0)),
+            (ExpandAI, (255, 0, 0)),
+            (ExpandAI, (255, 255, 0)),
+            (ExpandAI, (0, 0, 255)),
+            (ExpandAI, (255, 0, 255)),
+            (ExpandAI, (0, 150, 0)),
+            (ExpandAI, (158, 66, 255)),
         )
     )
     app.run()
