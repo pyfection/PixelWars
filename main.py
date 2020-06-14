@@ -1,4 +1,5 @@
 import random
+from array import array
 from copy import deepcopy
 from time import time
 from collections import deque
@@ -10,6 +11,8 @@ import noise
 from kivy.app import App
 from kivy.config import Config
 from kivy.clock import Clock
+from kivy.graphics.texture import Texture
+from kivy.graphics import Rectangle
 Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
 
 from const import *
@@ -21,20 +24,20 @@ class GameApp(App):
 
     def __init__(self, map_path, players):
         super().__init__()
+        self.map_path = map_path
         self.army_updates = []
-        base_map = Image.open(map_path).convert('RGB')
-        self.map = Image.new('RGBA', base_map.size, (0, 0, 0, 0))
-        base_map_px = base_map.load()
-        self.map_px = self.map.load()
 
+        base_map = Image.open(self.map_path).convert('RGB')
+        self.map_size = base_map.width, base_map.height
+        base_map_px = base_map.load()
         free_spawns = []
         # territories: terrain type, occupant
-        self.territories = np.zeros((base_map.height, base_map.width, 2), dtype=np.int16)
+        self.territories = np.zeros((*self.map_size, 2), dtype=np.int16)
         for x in range(self.territories.shape[0]):
             for y in range(self.territories.shape[1]):
-                if base_map_px[y, x] in (STRAIT, DESERT):
+                if base_map_px[x, y] in (STRAIT, DESERT):
                     self.territories[x, y] = (PASSABLE, -1)
-                elif base_map_px[y, x] == LAND:
+                elif base_map_px[x, y] == LAND:
                     self.territories[x, y] = (OCCUPIABLE, -1)
                     free_spawns.append((x, y))
                 else:
@@ -64,12 +67,17 @@ class GameApp(App):
         self.eps = [deque(maxlen=50) for _ in players]  # AI executions per second
 
         base_map.save('temp/base_map.png')
-        self.map.save('temp/map.png')
 
     def build(self):
         super().build()
         self.root.ids.base_map.source = 'temp/base_map.png'
-        self.root.ids.map.source = 'temp/map.png'
+        self.root.ids.map.size = self.root.ids.base_map.size
+        self.map = Texture.create(size=self.root.ids.base_map.texture_size)
+        size = self.map_size[0] * self.map_size[1] * 4
+        self.map_px = [0 for _ in range(size)]
+        self.map_px = array('B', self.map_px)
+        self.map.blit_buffer(self.map_px, colorfmt='rgba', bufferfmt='ubyte')
+        self.root.ids.map.texture = self.map
         for player in self.players:
             name = player.NAME
             self.root.ids.ai_names.text += f"[color=%02x%02x%02x]{name}[/color]\n" % player.color
@@ -84,22 +92,24 @@ class GameApp(App):
 
         # Update Map
         _s = time()
+        clear_color = array('B', (0, 0, 0, 0))
+
         for pid, aid, origin, target in self.army_updates:
             if not origin:
                 continue
             x, y = origin
             if self.territories[x, y, 1] == pid:
-                color = self.players[pid].color + (200,)
+                color = array('B', self.players[pid].color + (200,))
             else:
-                color = (0, 0, 0, 0)
-            self.map_px[y, x] = color
+                color = clear_color
+            i = (self.map_size[0] * (self.map_size[1]-y-1) + x) * 4
+            self.map_px[i:i+4] = color
         for pid, player in enumerate(self.players):
-            color = self.players[pid].unit_color + (200,)
+            color = array('B', self.players[pid].unit_color + (200,))
             for x, y in self.armies[pid].values():
-                self.map_px[y, x] = color
-
-        self.map.save('temp/map.png')
-        self.root.ids.map.reload()
+                i = (self.map_size[0] * (self.map_size[1]-y-1) + x) * 4
+                self.map_px[i:i+4] = color
+        self.map.blit_buffer(self.map_px, colorfmt='rgba', bufferfmt='ubyte')
         print("Update map took:", time()-_s, "for", len(self.army_updates), "updates and", sum(len(armies) for armies in self.armies))
 
         # Spawn player armies
@@ -137,6 +147,7 @@ class GameApp(App):
 
         _s = time()
         # Process player movement orders
+        moved_armies = set()
         random.shuffle(total_moves)
         while total_moves:
             pid, aid, x, y = total_moves.pop(0)
@@ -147,8 +158,10 @@ class GameApp(App):
             owner = self.territories[x, y, 1]
             allied_coord = self.armies[pid][aid]
             if owner == -1:  # Territory without owner
+                moved_armies.add((allied_coord, pid))
                 self.move_army(pid, aid, allied_coord, (x, y))
             elif owner == pid:  # Own territory, simply move army
+                moved_armies.add((allied_coord, pid))
                 self.move_army(pid, aid, allied_coord, (x, y))
             else:  # Occupied by enemy
                 enemy_pid = owner
@@ -168,6 +181,7 @@ class GameApp(App):
                         if len(enemy_armies) == 1:  # Last army was defeated
                             self.armies[pid].pop(aid)
                             for aid_ in allied_armies:
+                                moved_armies.add((allied_coord, pid))
                                 self.move_army(pid, aid_, allied_coord, (x, y))
                         self.armies[enemy_pid].pop(enemy_aid)
                             # self.army_updates.append((pid, aid, allied_coord, None))
