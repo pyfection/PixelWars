@@ -33,7 +33,11 @@ class AI(BaseAI):
                 target = ax + random.randint(-TARGET_RANGE, TARGET_RANGE), ay + random.randint(-TARGET_RANGE, TARGET_RANGE)
                 self.targets[aid] = target
 
-            d = distance.euclidean((ax, ay), target)
+            target_d = distance.euclidean((ax, ay), target)
+            closest = None
+            closest_d = None
+            closest_empty = False
+
             tiles = []
             for ox, oy in MOVES:
                 x, y = ax + ox, ay + oy
@@ -41,10 +45,17 @@ class AI(BaseAI):
                     continue
                 if self.territories[x, y, 0] == IMPASSABLE:
                     continue
+                if closest_empty and not self.territories[x, y, 1] != self.pid:
+                    # If it already had found a territory which is not occupied by self,
+                    # then ignore this one if it is occupied by self
+                    continue
 
-                d_ = distance.euclidean((x, y), target)
-                if d_ < d:
-                    tiles.append((d_, (x, y)))
+                if not closest_empty and self.territories[x, y, 1] != self.pid:  # Prefer not occupied by self
+                    closest = (x, y)
+                else:  # current and closest territory are either both empty or neither of them
+                    d = distance.euclidean((x, y), target)
+                    if d_ < d:
+                        tiles.append((d_, (x, y)))
             if tiles:
                 tiles.sort()
                 x, y = tiles[0][1]

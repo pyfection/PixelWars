@@ -1,5 +1,4 @@
-from const import OCCUPIABLE, PASSABLE
-from search import check_all
+from const import OCCUPIABLE
 
 MOVES = ((-1, 0), (0, 1), (1, 0), (0, -1))
 ADJC = ((-1, -1), (1, 1), (1, -1), (-1, 1))
@@ -16,11 +15,9 @@ class AI:
         self.territories = territories
         self.land = {}
         self.armies = {}  # {player_id: {army_id: coords}}
-        self.borders = set()  # Have to be updated by calling update_borders
         self.center = (0, 0)
 
     def update(self, army_updates):
-        # for coords, (ppid, pid, units) in territories.items():
         for pid, aid, origin, target in army_updates:
             if pid not in self.armies:
                 self.armies[pid] = {}

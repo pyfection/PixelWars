@@ -12,7 +12,6 @@ from kivy.app import App
 from kivy.config import Config
 from kivy.clock import Clock
 from kivy.graphics.texture import Texture
-from kivy.graphics import Rectangle
 Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
 
 from const import *
@@ -230,11 +229,11 @@ if __name__ == '__main__':
         map_path='assets/maps/europe1.png',
         players=(
             (ExpandAI, (255, 0, 0)),
-            (ExpandAI, (255, 255, 0)),
-            (ExpandAI, (0, 0, 255)),
-            (ExpandAI, (255, 0, 255)),
-            (ExpandAI, (0, 150, 0)),
-            (ExpandAI, (158, 66, 255)),
+            # (ExpandAI, (255, 255, 0)),
+            # (ExpandAI, (0, 0, 255)),
+            # (ExpandAI, (255, 0, 255)),
+            # (ExpandAI, (0, 150, 0)),
+            # (ExpandAI, (158, 66, 255)),
         )
     )
     app.run()
