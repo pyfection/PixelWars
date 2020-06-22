@@ -7,7 +7,6 @@ from uuid import uuid4
 
 import numpy as np
 from PIL import Image
-import noise
 from kivy.app import App
 from kivy.config import Config
 from kivy.clock import Clock
@@ -41,16 +40,7 @@ class GameApp(App):
                     free_spawns.append((x, y))
                 else:
                     self.territories[x, y] = (IMPASSABLE, -1)
-        for x in range(base_map.size[0]):
-            for y in range(base_map.size[1]):
-                v = base_map_px[x, y]
-                n = noise.snoise2(x*.01, y*.01, octaves=8, persistence=.7, lacunarity=2.) + 1
-                try:
-                    r, g, b = utils.mix_colors(COLORS[v][0], COLORS[v][1], n)
-                except KeyError:
-                    print('No colors found for', v)
-                    continue
-                base_map_px[x, y] = int(r), int(g), int(b)
+        utils.prettify_map(base_map, base_map_px)
 
         self.armies = [{} for _ in players]
         self.land = [set() for _ in players]
@@ -62,7 +52,11 @@ class GameApp(App):
             free_spawns.remove((x, y))
             self.spawn_army(i, x, y)
 
-        self.history = {'map': self.map_path, 'history': []}
+        self.history = {
+            'map': self.map_path,
+            'players': [{'color': p.color, 'unit_color': p.unit_color} for p in self.players],
+            'history': []
+        }
 
         self.tps = deque(maxlen=50)
         self.eps = [deque(maxlen=50) for _ in players]  # AI executions per second
@@ -102,6 +96,7 @@ class GameApp(App):
             if self.territories[x, y, 1] == pid:
                 color = array('B', self.players[pid].color + (200,))
             else:
+                # Passable but not occupiable
                 color = clear_color
             i = (self.map_size[0] * (self.map_size[1]-y-1) + x) * 4
             self.map_px[i:i+4] = color
@@ -124,6 +119,11 @@ class GameApp(App):
                 if random.random() <= ARMY_SPAWN_CHANCE:
                     self.spawn_army(pid, x, y)
         print("Spawn player armies took:", time()-_s)
+
+        # Record History
+        if self.army_updates:
+            updates = [(pid, str(aid), origin, target) for pid, aid, origin, target in self.army_updates]
+            self.history['history'].append(updates)
 
         _s = time()
         # Update players and get their movement orders
@@ -185,10 +185,6 @@ class GameApp(App):
                     self.army_updates.append((pid, aid, allied_coord, None))
         print("Process player moves took:", time()-_s)
 
-        if self.army_updates:
-            updates = [(pid, str(aid), origin, target) for pid, aid, origin, target in self.army_updates]
-            self.history['history'].append(updates)
-
         self.tps.append(1. / (time() - _start_t))
         self.root.ids.tps.text = str(round(sum(self.tps) / len(self.tps), 1))
 
@@ -239,11 +235,11 @@ if __name__ == '__main__':
         map_path='assets/maps/europe1.png',
         players=(
             (ExpandAI, (255, 0, 0)),
-            # (ExpandAI, (255, 255, 0)),
-            # (ExpandAI, (0, 0, 255)),
-            # (ExpandAI, (255, 0, 255)),
-            # (ExpandAI, (0, 150, 0)),
-            # (ExpandAI, (158, 66, 255)),
+            (ExpandAI, (255, 255, 0)),
+            (ExpandAI, (0, 0, 255)),
+            (ExpandAI, (255, 0, 255)),
+            (ExpandAI, (0, 150, 0)),
+            (ExpandAI, (158, 66, 255)),
         )
     )
     app.run()
