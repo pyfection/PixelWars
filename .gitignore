@@ -109,6 +109,3 @@ venv.bak/
 # Lock files
 *.ods#
 *.odt#
-
-# Project files
-history.json

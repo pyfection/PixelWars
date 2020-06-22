@@ -229,6 +229,8 @@ class GameApp(App):
 
 
 if __name__ == '__main__':
+    from datetime import datetime
+
     import ujson
 
     from ais.random import AI as RandomAI
@@ -245,5 +247,7 @@ if __name__ == '__main__':
         )
     )
     app.run()
-    with open("history.json", 'w') as f:
-        f.write(ujson.dumps(app.history, indent=4))
+
+    history_path = f"history/{datetime.now().strftime('%Y%m%d%H%M%S')}.json"
+    with open(history_path, 'w') as f:
+        f.write(ujson.dumps(app.history))
