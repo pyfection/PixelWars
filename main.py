@@ -62,6 +62,8 @@ class GameApp(App):
             free_spawns.remove((x, y))
             self.spawn_army(i, x, y)
 
+        self.history = {'map': self.map_path, 'history': []}
+
         self.tps = deque(maxlen=50)
         self.eps = [deque(maxlen=50) for _ in players]  # AI executions per second
 
@@ -183,6 +185,10 @@ class GameApp(App):
                     self.army_updates.append((pid, aid, allied_coord, None))
         print("Process player moves took:", time()-_s)
 
+        if self.army_updates:
+            updates = [(pid, str(aid), origin, target) for pid, aid, origin, target in self.army_updates]
+            self.history['history'].append(updates)
+
         self.tps.append(1. / (time() - _start_t))
         self.root.ids.tps.text = str(round(sum(self.tps) / len(self.tps), 1))
 
@@ -223,6 +229,8 @@ class GameApp(App):
 
 
 if __name__ == '__main__':
+    import ujson
+
     from ais.random import AI as RandomAI
     from ais.expand import AI as ExpandAI
     app = GameApp(
@@ -237,3 +245,5 @@ if __name__ == '__main__':
         )
     )
     app.run()
+    with open("history.json", 'w') as f:
+        f.write(ujson.dumps(app.history, indent=4))
