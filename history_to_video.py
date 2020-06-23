@@ -15,6 +15,10 @@ try:
 except IndexError:
     ratio_x = 1
     ratio_y = 1
+try:
+    fps = int(sys.argv[4])
+except IndexError:
+    fps = 30
 
 file_name = file_path.rstrip('.json')
 with open(file_path, 'r') as f:
@@ -29,7 +33,7 @@ img_px = img.load()
 size = int(img.width * ratio_x), int(img.height * ratio_y)
 utils.prettify_map(img, img_px)
 fourcc = cv2.VideoWriter_fourcc(*'XVID')
-video = cv2.VideoWriter(f"{file_name}.avi", fourcc, 60, size)
+video = cv2.VideoWriter(f"{file_name}.avi", fourcc, fps, size)
 
 armies = {}
 hl = len(history)
@@ -39,8 +43,6 @@ for i, tick_data in enumerate(history):
         print(i, "out of", hl, "done")
 
     for pid, aid, origin, target in tick_data:
-        assert origin != target
-
         # Origin
         if origin:
             x, y = origin

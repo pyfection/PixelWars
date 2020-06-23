@@ -71,7 +71,7 @@ class AI(BaseAI):
         if not path:
             print(start_node)
             x, y = start_node.pos
-            print(self.territories[x, y, 1], self.territories[x, y, 0])
+            print(self.pid, self.territories[x, y, 1], self.territories[x, y, 0])
             raise ValueError("Path should never be empty.")
         path.reverse()
         return path

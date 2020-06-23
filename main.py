@@ -122,7 +122,7 @@ class GameApp(App):
 
         # Record History
         if self.army_updates:
-            updates = [(pid, str(aid), origin, target) for pid, aid, origin, target in self.army_updates]
+            updates = [(int(pid), str(aid), origin, target) for pid, aid, origin, target in self.army_updates]
             self.history['history'].append(updates)
 
         _s = time()
@@ -136,6 +136,7 @@ class GameApp(App):
             _start_p = time()
             moves = player.update(updates)
             for aid, x, y in moves:
+                assert self.armies[pid][aid] != (x, y)
                 total_moves.append((pid, aid, x, y))
             eps = time() - _start_p
             self.eps[pid].append(1. / eps)
@@ -150,10 +151,13 @@ class GameApp(App):
         random.shuffle(total_moves)
         while total_moves:
             pid, aid, x, y = total_moves.pop(0)
+            if aid not in self.armies[pid]:
+                continue
             # Check if move is valid
             if self.territories[x, y, 0] not in (OCCUPIABLE, PASSABLE):
                 raise ValueError(f"Player {pid} cannot move army {aid} to {x}, {y} (Not passable)")
             # ToDo: add check so armies can only walk one tile
+            # ToDo: add check if army has same origin and target -> skip
             owner = self.territories[x, y, 1]
             allied_coord = self.armies[pid][aid]
             if owner == -1:  # Territory without owner
@@ -167,7 +171,7 @@ class GameApp(App):
                     if pid_ != pid or (x_, y_) != (x, y):
                         continue
                     allied_armies.append(aid_)
-                enemy_armies = [uid for coord, uid in self.armies[enemy_pid].items() if coord == (x, y)]
+                enemy_armies = [uid for uid, coord in self.armies[enemy_pid].items() if coord == (x, y)]
                 attacker_roll = sum(random.randint(0, BATTLE_MAX_ROLL) for _ in allied_armies)
                 defender_roll = (sum(random.randint(0, BATTLE_MAX_ROLL) for _ in enemy_armies) +
                                  random.randint(0, LOCALS_MAX_ROLL))
@@ -177,7 +181,6 @@ class GameApp(App):
                         self.army_updates.append((enemy_pid, enemy_aid, (x, y), None))
                         self.armies[enemy_pid].pop(enemy_aid)
                     if len(enemy_armies) <= 1:  # Last army was defeated or none present
-                        # self.armies[pid].pop(aid)
                         for aid_ in allied_armies:
                             self.move_army(pid, aid_, allied_coord, (x, y))
                 else:  # Win for defender (even if attacker and defender roll are the same)
