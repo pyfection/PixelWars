@@ -190,6 +190,7 @@ class GameApp(App):
 
         self.tps.append(1. / (time() - _start_t))
         self.root.ids.tps.text = str(round(sum(self.tps) / len(self.tps), 1))
+        self.root.ids.total_ticks.text = str(int(self.root.ids.total_ticks.text) + 1)
 
     def change_owner(self, x, y, pid):
         assert self.territories[x, y, 0] == OCCUPIABLE

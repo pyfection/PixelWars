@@ -5,11 +5,17 @@ RelativeLayout:
     Image:
         id: map
         allow_stretch: True
-    Label:
-        id: tps
-        text: "0"
-        size: 50, 30
-        size_hint: None, None
+    BoxLayout:
+        Label:
+            id: total_ticks
+            text: "0"
+            size: 50, 30
+            size_hint: None, None
+        Label:
+            id: tps
+            text: "0"
+            size: 50, 30
+            size_hint: None, None
     BoxLayout:
         id: scoreboard
         Label:
