@@ -1,3 +1,4 @@
+from math import modf, log
 import random
 from array import array
 from copy import deepcopy
@@ -46,6 +47,7 @@ class GameApp(App):
         self.land = [set() for _ in players]
 
         self.players_scores = [0 for _ in players]
+        self.players_armies_excess = [0 for _ in players]
         self.players = tuple(AI(i, color, deepcopy(self.territories)) for i, (AI, color) in enumerate(players))
         for i, player in enumerate(self.players):
             x, y = random.choice(free_spawns)
@@ -111,13 +113,16 @@ class GameApp(App):
         # Spawn player armies
         _s = time()
         for pid, player in enumerate(self.players):
-            for x, y in self.land[pid]:
-                if len(self.armies[pid]) >= HARD_ARMY_LIMIT:
-                    break  # ToDo: replace with inverse exponential for spawning chance over time
-                if pid < 0:
-                    continue
-                if random.random() <= ARMY_SPAWN_CHANCE:
-                    self.spawn_army(pid, x, y)
+            land = len(self.land[pid])
+            armies = len(self.armies[pid])
+            total = POP_BASE + log(1+land/1000)*10
+            growth = max((total - armies) * POP_GROWTH, 0)
+            excess, growth = modf(self.players_armies_excess[pid] + growth)
+            print(pid, land, land * POP_GROWTH - land ** 2 * POP_REDUCTION, growth, excess)
+            self.players_armies_excess[pid] = excess
+            for _ in range(int(growth)):
+                x, y = random.choice(list(self.land[pid]))
+                self.spawn_army(pid, x, y)
         print("Spawn player armies took:", time()-_s)
 
         # Record History
@@ -151,7 +156,9 @@ class GameApp(App):
         random.shuffle(total_moves)
         while total_moves:
             pid, aid, x, y = total_moves.pop(0)
-            if aid not in self.armies[pid]:
+            try:
+                allied_coord = self.armies[pid][aid]
+            except KeyError:
                 continue
             # Check if move is valid
             if self.territories[x, y, 0] not in (OCCUPIABLE, PASSABLE):
@@ -159,7 +166,6 @@ class GameApp(App):
             # ToDo: add check so armies can only walk one tile
             # ToDo: add check if army has same origin and target -> skip
             owner = self.territories[x, y, 1]
-            allied_coord = self.armies[pid][aid]
             if owner == -1:  # Territory without owner
                 self.move_army(pid, aid, allied_coord, (x, y))
             elif owner == pid:  # Own territory, simply move army
@@ -234,16 +240,20 @@ if __name__ == '__main__':
     import ujson
 
     from ais.random import AI as RandomAI
-    from ais.expand import AI as ExpandAI
+    from ais.expand_c import AI as ExpandAI
     app = GameApp(
         map_path='assets/maps/europe1.png',
         players=(
-            (ExpandAI, (255, 0, 0)),
-            (ExpandAI, (255, 255, 0)),
             (ExpandAI, (0, 0, 255)),
+            (ExpandAI, (0, 255, 0)),
+            (ExpandAI, (0, 255, 255)),
+            (ExpandAI, (255, 0, 0)),
             (ExpandAI, (255, 0, 255)),
+            (ExpandAI, (255, 255, 0)),
+            (ExpandAI, (255, 255, 255)),
+            (ExpandAI, (255, 110, 0)),
             (ExpandAI, (0, 150, 0)),
-            (ExpandAI, (158, 66, 255)),
+            (ExpandAI, (100, 100, 100)),
         )
     )
     app.run()
