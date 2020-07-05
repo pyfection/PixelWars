@@ -176,8 +176,9 @@ class GameApp(App):
             # Check if move is valid
             if self.territories[x, y, 0] not in (OCCUPIABLE, PASSABLE):
                 raise ValueError(f"Player {pid} cannot move army {aid} to {x}, {y} (Not passable)")
-            # ToDo: add check so armies can only walk one tile
-            # ToDo: add check if army has same origin and target -> skip
+            _move_distance = abs(x - allied_coord[0]) + abs(y - allied_coord[1])
+            if _move_distance != 1:
+                raise ValueError(f"Player {pid} can't move army {aid} {_move_distance} territories")
             owner = self.territories[x, y, 1]
             if owner == -1:  # Territory without owner -> simply move army
                 self.move_army(pid, aid, allied_coord, (x, y))
@@ -200,8 +201,7 @@ class GameApp(App):
                         self.army_updates.append((enemy_pid, enemy_aid, (x, y), None))
                         self.armies[enemy_pid].pop(enemy_aid)
                     if len(enemy_armies) <= 1:  # Last army was defeated or none present
-                        for aid_ in allied_armies:
-                            self.move_army(pid, aid_, allied_coord, (x, y))
+                        self.move_army(pid, aid, allied_coord, (x, y))
                 else:  # Win for defender (even if attacker and defender roll are the same)
                     self.armies[pid].pop(aid)
                     self.army_updates.append((pid, aid, allied_coord, None))
