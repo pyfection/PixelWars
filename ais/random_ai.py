@@ -3,7 +3,7 @@ import random
 from scipy.spatial import distance
 
 from const import IMPASSABLE
-from ais.base import MOVES, AI as BaseAI
+from ais.base_c import MOVES, AI as BaseAI
 
 
 TARGET_RANGE = 100

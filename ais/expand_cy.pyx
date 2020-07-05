@@ -1,9 +1,12 @@
 from collections import namedtuple
+from random import shuffle
 
 import numpy as np
 
 from const import *
-from ais.base import MOVES, AI as BaseAI
+from ais.base_c import MOVES, AI as BaseAI
+
+MOVES = list(MOVES)
 
 
 #cdef class Pos:
@@ -37,24 +40,28 @@ class AI(BaseAI):
         super().__init__(pid, color, territories)
         self.borders = set()
         self.paths = {}
-        self.search_buffer = np.zeros((*territories.shape[:2], 1), dtype=np.int16)
 
     def update(self, army_updates):
         super().update(army_updates)
 
         own_armies = self.armies[self.pid]
         for aid, (ax, ay) in own_armies.items():
-            try:
-                path = self.paths[aid]
-            except KeyError:
-                path = self.find_path(ax, ay)
-                self.paths[aid] = path
-            x, y = path.pop(0)
-            if not self.paths[aid]:
-                self.paths.pop(aid)
-            yield aid, x, y
+            if self.territories[ax, ay, 0] == OCCUPIABLE and self.territories[ax, ay, 1] == -1:
+                yield aid, None
+            else:
+                try:
+                    path = self.paths[aid]
+                except KeyError:
+                    path = self.find_path(ax, ay)
+                    self.paths[aid] = path
+                x, y = path.pop(0)
+                if not self.paths[aid]:
+                    self.paths.pop(aid)
+                yield aid, (x, y)
 
     def find_path(self, int x, int y):
+        shuffle(MOVES)
+
         cdef int ox
         cdef int oy
         cdef int rx
@@ -74,9 +81,6 @@ class AI(BaseAI):
                 rx, ry = x + ox, y + oy
                 if self.is_impassable(rx, ry):
                     continue
-                b = self.search_buffer[rx, ry, 0]
-                if BIN[i] | b == b:  # Means that path is closed
-                    continue
                 if (rx, ry) in checked_nodes:
                     has_valid_node = True
                     continue
@@ -84,19 +88,13 @@ class AI(BaseAI):
                 has_valid_node = True
                 checked_nodes.add((rx, ry))
 
-            if not has_valid_node:
-                # ToDo: If starting node has no possible ways to go, it will result in an error on the next line
-                # ToDo: Keep an eye on this
-                rx, ry = x - node.parent.pos[0], y - node.parent.pos[1]
-                self.search_buffer[x, y, 0] |= BIN[MOVES.index((rx, ry))]  # Add blocking direction
-
         path = []
         while node.parent:
             path.append(node.pos)
             node = node.parent
         if not path:
             x, y = start_node.pos
-            raise ValueError("Path should never be empty.")
+            raise ValueError(f"Path should never be empty. [({x}, {y}), {self.pid}]")
         path.reverse()
         return path
 

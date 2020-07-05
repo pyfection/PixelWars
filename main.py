@@ -81,7 +81,7 @@ class GameApp(App):
         Clock.schedule_interval(app.tick, 0)
 
     def tick(self, dt):
-        print('########################')
+        # print('########################')
         _start_t = time()
         self.root.ids.eps.text = ''
         self.root.ids.territories.text = ''
@@ -108,22 +108,24 @@ class GameApp(App):
                 i = (self.map_size[0] * (self.map_size[1]-y-1) + x) * 4
                 self.map_px[i:i+4] = color
         self.map.blit_buffer(self.map_px, colorfmt='rgba', bufferfmt='ubyte')
-        print("Update map took:", time()-_s, "for", len(self.army_updates), "updates and", sum(len(armies) for armies in self.armies))
+        # print("Update map took:", time()-_s, "for", len(self.army_updates), "updates and", sum(len(armies) for armies in self.armies))
 
         # Spawn player armies
         _s = time()
         for pid, player in enumerate(self.players):
+            if not self.land[pid]:
+                continue
             land = len(self.land[pid])
             armies = len(self.armies[pid])
             total = POP_BASE + log(1+land/1000)*10
             growth = max((total - armies) * POP_GROWTH, 0)
             excess, growth = modf(self.players_armies_excess[pid] + growth)
-            print(pid, land, land * POP_GROWTH - land ** 2 * POP_REDUCTION, growth, excess)
+            # print(pid, land, land * POP_GROWTH - land ** 2 * POP_REDUCTION, growth, excess)
             self.players_armies_excess[pid] = excess
             for _ in range(int(growth)):
                 x, y = random.choice(list(self.land[pid]))
                 self.spawn_army(pid, x, y)
-        print("Spawn player armies took:", time()-_s)
+        # print("Spawn player armies took:", time()-_s)
 
         # Record History
         if self.army_updates:
@@ -140,41 +142,52 @@ class GameApp(App):
             updates = deepcopy(army_updates)
             _start_p = time()
             moves = player.update(updates)
-            for aid, x, y in moves:
-                assert self.armies[pid][aid] != (x, y)
-                total_moves.append((pid, aid, x, y))
+            for aid, target in moves:
+                assert self.armies[pid][aid] != target
+                total_moves.append((pid, aid, target))
             eps = time() - _start_p
             self.eps[pid].append(1. / eps)
             eps = round(sum(self.eps[pid]) / len(self.eps[pid]))
             self.root.ids.territories.text += f"[color=%02x%02x%02x]{self.players_scores[pid]}[/color]\n" % player.color
             self.root.ids.units.text += f"[color=%02x%02x%02x]{len(self.armies[pid])}[/color]\n" % player.color
             self.root.ids.eps.text += f"[color=%02x%02x%02x]{eps}[/color]\n" % player.color
-        print("Update players took:", time()-_s)
+        # print("Update players took:", time()-_s)
 
         _s = time()
         # Process player movement orders
         random.shuffle(total_moves)
         while total_moves:
-            pid, aid, x, y = total_moves.pop(0)
+            pid, aid, target = total_moves.pop(0)
             try:
                 allied_coord = self.armies[pid][aid]
             except KeyError:
+                continue  # Happens if army was defeated before its move could be executed or player tried to cheat
+
+            # Check if colonizing
+            if target is None:
+                x, y = allied_coord
+                if self.territories[x, y, 0] == OCCUPIABLE and self.territories[x, y, 1] == -1:
+                    self.change_owner(x, y, pid)
+                    self.armies[pid].pop(aid)
+                    self.army_updates.append((pid, aid, allied_coord, None))
                 continue
+
+            x, y = target
             # Check if move is valid
             if self.territories[x, y, 0] not in (OCCUPIABLE, PASSABLE):
                 raise ValueError(f"Player {pid} cannot move army {aid} to {x}, {y} (Not passable)")
             # ToDo: add check so armies can only walk one tile
             # ToDo: add check if army has same origin and target -> skip
             owner = self.territories[x, y, 1]
-            if owner == -1:  # Territory without owner
+            if owner == -1:  # Territory without owner -> simply move army
                 self.move_army(pid, aid, allied_coord, (x, y))
-            elif owner == pid:  # Own territory, simply move army
+            elif owner == pid:  # Own territory -> simply move army
                 self.move_army(pid, aid, allied_coord, (x, y))
             else:  # Occupied by enemy
                 enemy_pid = owner
                 allied_armies = [aid]
-                for pid_, aid_, x_, y_ in total_moves:
-                    if pid_ != pid or (x_, y_) != (x, y):
+                for pid_, aid_, target_ in total_moves:
+                    if pid_ != pid or target_ != (x, y):
                         continue
                     allied_armies.append(aid_)
                 enemy_armies = [uid for uid, coord in self.armies[enemy_pid].items() if coord == (x, y)]
@@ -192,7 +205,7 @@ class GameApp(App):
                 else:  # Win for defender (even if attacker and defender roll are the same)
                     self.armies[pid].pop(aid)
                     self.army_updates.append((pid, aid, allied_coord, None))
-        print("Process player moves took:", time()-_s)
+        # print("Process player moves took:", time()-_s)
 
         self.tps.append(1. / (time() - _start_t))
         self.root.ids.tps.text = str(round(sum(self.tps) / len(self.tps), 1))
@@ -216,11 +229,7 @@ class GameApp(App):
         assert self.territories[x, y, 0] in (OCCUPIABLE, PASSABLE)
         uid = uuid4()
         self.army_updates.append((pid, uid, None, (x, y)))
-        if self.territories[x, y, 1] != pid:
-            self.change_owner(x, y, pid)
-            self.army_updates.append((pid, uid, (x, y), None))
-        else:
-            self.armies[pid][uid] = (x, y)
+        self.armies[pid][uid] = (x, y)
 
     def move_army(self, pid, aid, origin, target):
         assert target is not None
@@ -228,10 +237,8 @@ class GameApp(App):
         self.army_updates.append((pid, aid, origin, target))
         self.armies[pid][aid] = target
 
-        if self.territories[target[0], target[1], 0] == OCCUPIABLE and self.territories[target[0], target[1], 1] != pid:
+        if self.territories[target[0], target[1], 0] == OCCUPIABLE and self.territories[target[0], target[1], 1] not in (-1, pid):
             self.change_owner(*target, pid)
-            self.army_updates.append((pid, aid, target, None))
-            self.armies[pid].pop(aid)
 
 
 if __name__ == '__main__':
@@ -239,7 +246,7 @@ if __name__ == '__main__':
 
     import ujson
 
-    from ais.random import AI as RandomAI
+    from ais.random_ai import AI as RandomAI
     from ais.expand_c import AI as ExpandAI
     app = GameApp(
         map_path='assets/maps/europe1.png',

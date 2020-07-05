@@ -22,13 +22,19 @@ class AI:
             if pid not in self.armies:
                 self.armies[pid] = {}
 
-            if target is None:  # Army got destroyed
+            if target is None:  # Army got destroyed or colonized
                 self.armies[pid].pop(aid)
-            else:
-                self.armies[pid][aid] = target
+                if self.territories[origin[0], origin[1], 1] == -1:  # colonized
+                    self.territories[origin[0], origin[1], 1] = pid
+                    try:
+                        self.land[pid].add(origin)
+                    except KeyError:
+                        self.land[pid] = {origin}
+                continue
 
-            if target and self.territories[target[0], target[1], 0] == OCCUPIABLE:
-                ppid = self.territories[target[0], target[1], 1]
+            self.armies[pid][aid] = target
+            ppid = self.territories[target[0], target[1], 1]
+            if self.territories[target[0], target[1], 0] == OCCUPIABLE and ppid not in (pid, -1):
                 self.territories[target[0], target[1], 1] = pid
                 try:
                     self.land[ppid].remove(target)
