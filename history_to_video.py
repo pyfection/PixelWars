@@ -31,7 +31,9 @@ history = content['history']
 img = Image.open(map_path).convert('RGB')
 img_px = img.load()
 size = int(img.width * ratio_x), int(img.height * ratio_y)
+territories = utils.territories_from_map(img_px, img.size)
 utils.prettify_map(img, img_px)
+img_px_original = img.copy().load()
 fourcc = cv2.VideoWriter_fourcc(*'XVID')
 video = cv2.VideoWriter(f"{file_name}.avi", fourcc, fps, size)
 
@@ -46,7 +48,9 @@ for i, tick_data in enumerate(history):
         # Origin
         if origin:
             x, y = origin
-            if not any(a[1] == origin for i, a in armies.items() if i != aid):
+            if territories[x, y, 0] == 1:  # Passable
+                img_px[x, y] = img_px_original[x, y]
+            elif not any(a[1] == origin for i, a in armies.items() if i != aid):
                 # No more armies left on origin tile, repaint
                 img_px[x, y] = tuple(players[pid]['color'])
 

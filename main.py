@@ -29,18 +29,14 @@ class GameApp(App):
         base_map = Image.open(self.map_path).convert('RGB')
         self.map_size = base_map.width, base_map.height
         base_map_px = base_map.load()
-        free_spawns = []
         # territories: terrain type, occupant
-        self.territories = np.zeros((*self.map_size, 2), dtype=np.int16)
-        for x in range(self.territories.shape[0]):
-            for y in range(self.territories.shape[1]):
-                if base_map_px[x, y] in (STRAIT, DESERT):
-                    self.territories[x, y] = (PASSABLE, -1)
-                elif base_map_px[x, y] == LAND:
-                    self.territories[x, y] = (OCCUPIABLE, -1)
-                    free_spawns.append((x, y))
-                else:
-                    self.territories[x, y] = (IMPASSABLE, -1)
+        self.territories = utils.territories_from_map(base_map_px, self.map_size)
+        free_spawns = [
+            (x, y)
+            for x in range(self.map_size[0])
+            for y in range(self.map_size[1])
+            if self.territories[x, y, 0] == OCCUPIABLE
+        ]
         utils.prettify_map(base_map, base_map_px)
 
         self.armies = [{} for _ in players]
@@ -180,27 +176,31 @@ class GameApp(App):
             if _move_distance != 1:
                 raise ValueError(f"Player {pid} can't move army {aid} {_move_distance} territories")
             owner = self.territories[x, y, 1]
-            if owner == -1:  # Territory without owner -> simply move army
+            # Own territory -> simply move army
+            if owner == pid:
                 self.move_army(pid, aid, allied_coord, (x, y))
-            elif owner == pid:  # Own territory -> simply move army
-                self.move_army(pid, aid, allied_coord, (x, y))
-            else:  # Occupied by enemy
-                enemy_pid = owner
+            # Empty, occupied by enemy or stationed army
+            else:
+                # Stationed army player, owner or -1 (No owner)
+                enemy_pid = next((pid_ for pid_, armies_ in enumerate(self.armies) for aid_, pos_ in armies_.items() if aid_ != aid and pos_ == target), owner)
                 allied_armies = [aid]
                 for pid_, aid_, target_ in total_moves:
                     if pid_ != pid or target_ != (x, y):
                         continue
                     allied_armies.append(aid_)
-                enemy_armies = [uid for uid, coord in self.armies[enemy_pid].items() if coord == (x, y)]
+                if enemy_pid == -1:
+                    enemy_armies = []
+                else:
+                    enemy_armies = [uid for uid, coord in self.armies[enemy_pid].items() if coord == (x, y)]
                 attacker_roll = sum(random.randint(0, BATTLE_MAX_ROLL) for _ in allied_armies)
                 defender_roll = (sum(random.randint(0, BATTLE_MAX_ROLL) for _ in enemy_armies) +
                                  random.randint(0, LOCALS_MAX_ROLL))
                 if attacker_roll > defender_roll:  # Win for attacker
                     if enemy_armies:
-                        enemy_aid = enemy_armies[0]
+                        enemy_aid = enemy_armies.pop(0)
                         self.army_updates.append((enemy_pid, enemy_aid, (x, y), None))
                         self.armies[enemy_pid].pop(enemy_aid)
-                    if len(enemy_armies) <= 1:  # Last army was defeated or none present
+                    if not enemy_armies:  # Last army was defeated or none present
                         self.move_army(pid, aid, allied_coord, (x, y))
                 else:  # Win for defender (even if attacker and defender roll are the same)
                     self.armies[pid].pop(aid)
@@ -213,6 +213,7 @@ class GameApp(App):
 
     def change_owner(self, x, y, pid):
         assert self.territories[x, y, 0] == OCCUPIABLE
+        assert pid >= -1
         previous_owner = self.territories[x, y, 1]
         if previous_owner == pid:
             return previous_owner
@@ -263,8 +264,9 @@ if __name__ == '__main__':
             (ExpandAI, (100, 100, 100)),
         )
     )
-    app.run()
-
-    history_path = f"history/{datetime.now().strftime('%Y%m%d%H%M%S')}.json"
-    with open(history_path, 'w') as f:
-        f.write(ujson.dumps(app.history))
+    try:
+        app.run()
+    finally:
+        history_path = f"history/{datetime.now().strftime('%Y%m%d%H%M%S')}.json"
+        with open(history_path, 'w') as f:
+            f.write(ujson.dumps(app.history))
