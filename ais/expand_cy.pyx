@@ -4,7 +4,7 @@ from random import shuffle
 import numpy as np
 
 from const import *
-from ais.base_c import MOVES, AI as BaseAI
+from ais.base_c import MOVES, ADJC, AI as BaseAI
 
 MOVES = list(MOVES)
 
@@ -46,26 +46,39 @@ class AI(BaseAI):
 
         own_armies = self.armies[self.pid]
         for aid, (ax, ay) in own_armies.items():
+            shuffle(MOVES)
+
             if self.territories[ax, ay, 0] == OCCUPIABLE and self.territories[ax, ay, 1] == -1:
                 yield aid, None
             else:
-                try:
-                    path = self.paths[aid]
-                    if path[0] == (ax, ay):
-                        path.pop(0)
-                        if not path:
-                            raise KeyError
-                except KeyError:
-                    path = self.find_path(ax, ay)
-                    self.paths[aid] = path
-                x, y = path[0]
-                if not self.paths[aid]:
-                    self.paths.pop(aid)
+                target_moves = []
+                for i, (ox, oy) in enumerate(MOVES):
+                    rx, ry = ax + ox, ay + oy
+                    if self.is_impassable(rx, ry):
+                        continue
+                    if self.territories[rx, ry, 1] != self.pid and self.territories[rx, ry, 0] == OCCUPIABLE:
+                        a = len([True for ox_, oy_ in ADJC if not self.is_impassable(rx+ox_, ry+oy_) and self.territories[rx+ox_, ry+oy_, 1] == self.pid])
+                        target_moves.append((a, i))
+                if target_moves:
+                    ox, oy = MOVES[sorted(target_moves, reverse=True)[0][1]]
+                    x, y = ax + ox, ay + oy
+                    self.paths.pop(aid, None)
+                else:
+                    try:
+                        path = self.paths[aid]
+                        if path[0] == (ax, ay):
+                            path.pop(0)
+                            if not path:
+                                raise KeyError
+                    except KeyError:
+                        path = self.find_path(ax, ay)
+                        self.paths[aid] = path
+                    x, y = path[0]
+                    if not self.paths[aid]:
+                        self.paths.pop(aid)
                 yield aid, (x, y)
 
     def find_path(self, int x, int y):
-        shuffle(MOVES)
-
         cdef int ox
         cdef int oy
         cdef int rx
