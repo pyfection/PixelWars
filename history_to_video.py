@@ -56,7 +56,8 @@ for i, tick_data in enumerate(history):
 
         # Target
         if not target:
-            img_px[x, y] = tuple(players[pid]['color'])
+            if territories[x, y, 0] == 2:  # Occupiable
+                img_px[x, y] = tuple(players[pid]['color'])
             armies.pop(aid)
             continue
         x, y = target

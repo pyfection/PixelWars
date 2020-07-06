@@ -21,8 +21,7 @@ COLORS = {
 
 
 POP_BASE = 1
-POP_GROWTH = .1  # Growth per territory
+POP_GROWTH = .01  # Growth per territory
 POP_REDUCTION = .000000005  # Exponential reduction per territory
-BATTLE_MAX_ROLL = 10
-LOCALS_MAX_ROLL = 2  # Max dice roll for local defenders
+BATTLE_MAX_ROLL = 100
 HARD_ARMY_LIMIT = 20  # Max armies per player  # ToDo: replace this with a spawn chance decrease over time (inverse exponential)

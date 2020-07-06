@@ -15,7 +15,6 @@ from kivy.graphics.texture import Texture
 Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
 Config.set('graphics', 'window_state', 'maximized')
 
-
 from const import *
 import utils
 
@@ -50,7 +49,8 @@ class GameApp(App):
         for i, player in enumerate(self.players):
             x, y = random.choice(free_spawns)
             free_spawns.remove((x, y))
-            self.spawn_army(i, x, y)
+            for _ in range(20):
+                self.spawn_army(i, x, y)
 
         self.history = {
             'map': self.map_path,
@@ -73,6 +73,7 @@ class GameApp(App):
         self.map_px = array('B', self.map_px)
         self.map.blit_buffer(self.map_px, colorfmt='rgba', bufferfmt='ubyte')
         self.root.ids.map.texture = self.map
+        self.root.ids.ai_names.text = 'AI Type\n'
         for player in self.players:
             name = player.NAME
             self.root.ids.ai_names.text += f"[color=%02x%02x%02x]{name}[/color]\n" % player.color
@@ -81,9 +82,10 @@ class GameApp(App):
     def tick(self, dt):
         # print('########################')
         _start_t = time()
-        self.root.ids.eps.text = ''
-        self.root.ids.territories.text = ''
-        self.root.ids.units.text = ''
+        self.root.ids.eps.text = 'EPS\n'
+        self.root.ids.territories.text = 'Territories\n'
+        self.root.ids.units.text = 'Units\n'
+        self.root.ids.max_pops.text = 'Max Pop\n'
 
         # Update Map
         _s = time()
@@ -112,10 +114,12 @@ class GameApp(App):
         _s = time()
         for pid, player in enumerate(self.players):
             if not self.land[pid]:
+                self.root.ids.max_pops.text += f"[color=%02x%02x%02x]0[/color]\n" % player.color
                 continue
             land = len(self.land[pid])
             armies = len(self.armies[pid])
-            total = POP_BASE + log(1+land/1000)*10
+            total = POP_BASE + log(1+land/1000)*30
+            self.root.ids.max_pops.text += f"[color=%02x%02x%02x]{int(total)}[/color]\n" % player.color
             growth = max((total - armies) * POP_GROWTH, 0)
             excess, growth = modf(self.players_armies_excess[pid] + growth)
             # print(pid, land, land * POP_GROWTH - land ** 2 * POP_REDUCTION, growth, excess)
@@ -181,10 +185,21 @@ class GameApp(App):
             # Own territory -> simply move army
             if owner == pid:
                 self.move_army(pid, aid, allied_coord, (x, y))
+            # Desert or crossing
+            elif self.territories[x, y, 0] == PASSABLE:
+                self.move_army(pid, aid, allied_coord, (x, y))
             # Empty, occupied by enemy or stationed army
             else:
                 # Stationed army player, owner or -1 (No owner)
-                enemy_pid = next((pid_ for pid_, armies_ in enumerate(self.armies) for aid_, pos_ in armies_.items() if aid_ != aid and pos_ == target), owner)
+                enemy_pid = next(
+                    (
+                        pid_
+                        for pid_, armies_ in enumerate(self.armies)
+                        for aid_, pos_ in armies_.items()
+                        if aid_ != aid and pid_ != pid and pos_ == target
+                    ),
+                    owner
+                )
                 allied_armies = [aid]
                 for pid_, aid_, target_ in total_moves:
                     if pid_ != pid or target_ != (x, y):
@@ -195,8 +210,7 @@ class GameApp(App):
                 else:
                     enemy_armies = [uid for uid, coord in self.armies[enemy_pid].items() if coord == (x, y)]
                 attacker_roll = sum(random.randint(0, BATTLE_MAX_ROLL) for _ in allied_armies)
-                defender_roll = (sum(random.randint(0, BATTLE_MAX_ROLL) for _ in enemy_armies) +
-                                 random.randint(0, LOCALS_MAX_ROLL))
+                defender_roll = (sum(random.randint(0, BATTLE_MAX_ROLL) for _ in enemy_armies))
                 if attacker_roll > defender_roll:  # Win for attacker
                     if enemy_armies:
                         enemy_aid = enemy_armies.pop(0)
@@ -254,16 +268,26 @@ if __name__ == '__main__':
     app = GameApp(
         map_path='assets/maps/europe1.png',
         players=(
-            (ExpandAI, (0, 0, 255)),
-            (ExpandAI, (0, 255, 0)),
-            (ExpandAI, (0, 255, 255)),
+            (ExpandAI, (105, 105, 105)),
+            (ExpandAI, (220, 220, 220)),
+            (ExpandAI, (25, 25, 112)),
+            (ExpandAI, (139, 0, 0)),
+            (ExpandAI, (128, 128, 0)),
+            (ExpandAI, (16, 179, 113)),
             (ExpandAI, (255, 0, 0)),
+            (ExpandAI, (255, 140, 0)),
+            (ExpandAI, (255, 215, 0)),
+            (ExpandAI, (199, 21, 133)),
+            (ExpandAI, (0, 255, 127)),
+            (ExpandAI, (0, 255, 255)),
+            (ExpandAI, (0, 191, 255)),
+            (ExpandAI, (0, 0, 255)),
+            (ExpandAI, (173, 255, 47)),
             (ExpandAI, (255, 0, 255)),
-            (ExpandAI, (255, 255, 0)),
-            (ExpandAI, (255, 255, 255)),
-            (ExpandAI, (255, 110, 0)),
-            (ExpandAI, (0, 150, 0)),
-            (ExpandAI, (100, 100, 100)),
+            (ExpandAI, (240, 230, 140)),
+            (ExpandAI, (221, 160, 221)),
+            (ExpandAI, (123, 104, 238)),
+            (ExpandAI, (255, 160, 122)),
         )
     )
     try:
