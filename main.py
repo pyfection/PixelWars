@@ -136,18 +136,16 @@ class GameApp(App):
 
         _s = time()
         # Update players and get their movement orders
-        army_updates = deepcopy(self.army_updates)
+        army_updates = tuple(self.army_updates)
         self.army_updates.clear()
         total_moves = []
 
         for pid, player in enumerate(self.players):
-            updates = deepcopy(army_updates)
             _start_p = time()
-            moves = player.update(updates)
-            for aid, target in moves:
-                assert self.armies[pid][aid] != target
-                total_moves.append((pid, aid, target))
+            moves = player.update(army_updates)
             eps = time() - _start_p
+            for aid, target in moves:
+                total_moves.append((pid, aid, target))
             self.eps[pid].append(1. / eps)
             eps = round(sum(self.eps[pid]) / len(self.eps[pid]))
             self.root.ids.territories.text += f"[color=%02x%02x%02x]{self.players_scores[pid]}[/color]\n" % player.color
