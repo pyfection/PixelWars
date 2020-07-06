@@ -13,6 +13,8 @@ from kivy.config import Config
 from kivy.clock import Clock
 from kivy.graphics.texture import Texture
 Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
+Config.set('graphics', 'window_state', 'maximized')
+
 
 from const import *
 import utils
