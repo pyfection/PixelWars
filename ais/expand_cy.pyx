@@ -51,10 +51,14 @@ class AI(BaseAI):
             else:
                 try:
                     path = self.paths[aid]
+                    if path[0] == (ax, ay):
+                        path.pop(0)
+                        if not path:
+                            raise KeyError
                 except KeyError:
                     path = self.find_path(ax, ay)
                     self.paths[aid] = path
-                x, y = path.pop(0)
+                x, y = path[0]
                 if not self.paths[aid]:
                     self.paths.pop(aid)
                 yield aid, (x, y)
