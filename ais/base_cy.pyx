@@ -8,7 +8,8 @@ BORDER_CHECKS = MOVES + ((0, 2), (1, 1), (2, 0), (1, -1), (0, -2), (-1, -1), (-2
 class AI:
     NAME = "BaseAI"
 
-    def __init__(self, int pid, tuple color, territories):
+    def __init__(self, int pid, str name, tuple color, territories):
+        self.name = name
         self.pid = pid  # Player ID
         self.color = color
         self.unit_color = tuple(int(c * .5) for c in color)

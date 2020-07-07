@@ -36,8 +36,8 @@ cdef tuple BIN = (1, 2, 4, 8)
 class AI(BaseAI):
     NAME = "ExpandAI"
 
-    def __init__(self, pid, color, territories):
-        super().__init__(pid, color, territories)
+    def __init__(self, pid, name, color, territories):
+        super().__init__(pid, name, color, territories)
         self.borders = set()
         self.paths = {}
 

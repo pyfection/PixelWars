@@ -45,11 +45,11 @@ class GameApp(App):
 
         self.players_scores = [0 for _ in players]
         self.players_armies_excess = [0 for _ in players]
-        self.players = tuple(AI(i, color, deepcopy(self.territories)) for i, (AI, color) in enumerate(players))
+        self.players = tuple(AI(i, name, color, deepcopy(self.territories)) for i, (AI, name, color) in enumerate(players))
         for i, player in enumerate(self.players):
             x, y = random.choice(free_spawns)
             free_spawns.remove((x, y))
-            for _ in range(20):
+            for _ in range(100):
                 self.spawn_army(i, x, y)
 
         self.history = {
@@ -73,10 +73,12 @@ class GameApp(App):
         self.map_px = array('B', self.map_px)
         self.map.blit_buffer(self.map_px, colorfmt='rgba', bufferfmt='ubyte')
         self.root.ids.map.texture = self.map
-        self.root.ids.ai_names.text = 'AI Type\n'
+        self.root.ids.ai_names.text = 'Name\n'
+        self.root.ids.ai_types.text = 'Type\n'
         for player in self.players:
             name = player.NAME
-            self.root.ids.ai_names.text += f"[color=%02x%02x%02x]{name}[/color]\n" % player.color
+            self.root.ids.ai_names.text += f"[color=%02x%02x%02x]{player.name}[/color]\n" % player.color
+            self.root.ids.ai_types.text += f"[color=%02x%02x%02x]{player.NAME}[/color]\n" % player.color
         Clock.schedule_interval(app.tick, 0)
 
     def tick(self, dt):
@@ -264,28 +266,28 @@ if __name__ == '__main__':
     from ais.random_ai import AI as RandomAI
     from ais.expand_c import AI as ExpandAI
     app = GameApp(
-        map_path='assets/maps/europe1.png',
+        map_path='assets/maps/ImperatorRomeMapSmall.png',
         players=(
-            (ExpandAI, (105, 105, 105)),
-            (ExpandAI, (220, 220, 220)),
-            (ExpandAI, (25, 25, 112)),
-            (ExpandAI, (139, 0, 0)),
-            (ExpandAI, (128, 128, 0)),
-            (ExpandAI, (16, 179, 113)),
-            (ExpandAI, (255, 0, 0)),
-            (ExpandAI, (255, 140, 0)),
-            (ExpandAI, (255, 215, 0)),
-            (ExpandAI, (199, 21, 133)),
-            (ExpandAI, (0, 255, 127)),
-            (ExpandAI, (0, 255, 255)),
-            (ExpandAI, (0, 191, 255)),
-            (ExpandAI, (0, 0, 255)),
-            (ExpandAI, (173, 255, 47)),
-            (ExpandAI, (255, 0, 255)),
-            (ExpandAI, (240, 230, 140)),
-            (ExpandAI, (221, 160, 221)),
-            (ExpandAI, (123, 104, 238)),
-            (ExpandAI, (255, 160, 122)),
+            (ExpandAI, "Dimgray", (105, 105, 105)),
+            (ExpandAI, "Gainsboro", (220, 220, 220)),
+            (ExpandAI, "Midnight", (25, 25, 112)),
+            (ExpandAI, "Darkred", (139, 0, 0)),
+            (ExpandAI, "Olive", (128, 128, 0)),
+            (ExpandAI, "Seagreen", (16, 179, 113)),
+            (ExpandAI, "Red", (255, 0, 0)),
+            (ExpandAI, "Orange", (255, 140, 0)),
+            (ExpandAI, "Gold", (255, 215, 0)),
+            (ExpandAI, "Violet", (199, 21, 133)),
+            (ExpandAI, "Springgreen", (0, 255, 127)),
+            (ExpandAI, "Aqua", (0, 255, 255)),
+            (ExpandAI, "Sky", (0, 191, 255)),
+            (ExpandAI, "Blue", (0, 0, 255)),
+            (ExpandAI, "Greenyellow", (173, 255, 47)),
+            (ExpandAI, "Fuchsia", (255, 0, 255)),
+            (ExpandAI, "Khaki", (240, 230, 140)),
+            (ExpandAI, "Plum", (221, 160, 221)),
+            (ExpandAI, "Slateblue", (123, 104, 238)),
+            (ExpandAI, "Salmon", (255, 160, 122)),
         )
     )
     try:
