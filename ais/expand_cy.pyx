@@ -57,7 +57,7 @@ class AI(BaseAI):
                     if self.is_impassable(rx, ry):
                         continue
                     if self.territories[rx, ry, 1] != self.pid and self.territories[rx, ry, 0] == OCCUPIABLE:
-                        a = len([True for ox_, oy_ in ADJC if not self.is_impassable(rx+ox_, ry+oy_) and self.territories[rx+ox_, ry+oy_, 1] == self.pid])
+                        a = sum(1 for ox_, oy_ in ADJC if not self.is_impassable(rx+ox_, ry+oy_) and self.territories[rx+ox_, ry+oy_, 1] == self.pid)
                         target_moves.append((a, i))
                 if target_moves:
                     ox, oy = MOVES[sorted(target_moves, reverse=True)[0][1]]

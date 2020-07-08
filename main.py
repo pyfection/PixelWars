@@ -49,7 +49,7 @@ class GameApp(App):
         for i, player in enumerate(self.players):
             x, y = random.choice(free_spawns)
             free_spawns.remove((x, y))
-            for _ in range(100):
+            for _ in range(20):
                 self.spawn_army(i, x, y)
 
         self.history = {
@@ -87,6 +87,7 @@ class GameApp(App):
         self.root.ids.eps.text = 'EPS\n'
         self.root.ids.territories.text = 'Territories\n'
         self.root.ids.units.text = 'Units\n'
+        self.root.ids.new_units.text = 'New Units\n'
         self.root.ids.max_pops.text = 'Max Pop\n'
 
         # Update Map
@@ -117,6 +118,7 @@ class GameApp(App):
         for pid, player in enumerate(self.players):
             if not self.land[pid]:
                 self.root.ids.max_pops.text += f"[color=%02x%02x%02x]0[/color]\n" % player.color
+                self.root.ids.new_units.text += f"[color=%02x%02x%02x]0[/color]\n" % player.color
                 continue
             land = len(self.land[pid])
             armies = len(self.armies[pid])
@@ -124,6 +126,7 @@ class GameApp(App):
             self.root.ids.max_pops.text += f"[color=%02x%02x%02x]{int(total)}[/color]\n" % player.color
             growth = max((total - armies) * POP_GROWTH, 0)
             excess, growth = modf(self.players_armies_excess[pid] + growth)
+            self.root.ids.new_units.text += f"[color=%02x%02x%02x]{round(growth+excess, 3)}[/color]\n" % player.color
             # print(pid, land, land * POP_GROWTH - land ** 2 * POP_REDUCTION, growth, excess)
             self.players_armies_excess[pid] = excess
             for _ in range(int(growth)):
@@ -169,9 +172,14 @@ class GameApp(App):
             if target is None:
                 x, y = allied_coord
                 if self.territories[x, y, 0] == OCCUPIABLE and self.territories[x, y, 1] == -1:
+                    # Colonize
                     self.change_owner(x, y, pid)
-                    self.armies[pid].pop(aid)
                     self.army_updates.append((pid, aid, allied_coord, None))
+                    if SUCCESS_COLONIZING_CHANCE >= random.random():
+                        # Colonized without issues, can move again
+                        self.army_updates.append((pid, aid, None, allied_coord))
+                    else:
+                        self.armies[pid].pop(aid)
                 continue
 
             x, y = target
