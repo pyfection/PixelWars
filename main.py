@@ -15,6 +15,7 @@ from kivy.graphics.texture import Texture
 Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
 Config.set('graphics', 'window_state', 'maximized')
 
+import config
 from const import *
 import utils
 
@@ -22,7 +23,7 @@ import utils
 class GameApp(App):
     title = "PixelWars"
 
-    def __init__(self, map_path, players):
+    def __init__(self, map_path, players, **settings):
         super().__init__()
         self.map_path = map_path
         self.army_updates = []
@@ -62,6 +63,9 @@ class GameApp(App):
         self.eps = [deque(maxlen=50) for _ in players]  # AI executions per second
 
         base_map.save('temp/base_map.png')
+
+        for key, value in settings.items():
+            setattr(config, key, value)
 
     def build(self):
         super().build()
@@ -122,12 +126,11 @@ class GameApp(App):
                 continue
             land = len(self.land[pid])
             armies = len(self.armies[pid])
-            total = POP_BASE + log(1+land/1000)*30
+            total = config.POP_BASE + log(1 + land * config.POP_HEIGHT) * config.POP_WIDTH
             self.root.ids.max_pops.text += f"[color=%02x%02x%02x]{int(total)}[/color]\n" % player.color
-            growth = max((total - armies) * POP_GROWTH, 0)
+            growth = max((total - armies) * config.POP_GROWTH, 0)
             self.root.ids.new_units.text += f"[color=%02x%02x%02x]{round(growth, 2)}[/color]\n" % player.color
             excess, growth = modf(self.players_armies_excess[pid] + growth)
-            # print(pid, land, land * POP_GROWTH - land ** 2 * POP_REDUCTION, growth, excess)
             self.players_armies_excess[pid] = excess
             for _ in range(int(growth)):
                 x, y = random.choice(list(self.land[pid]))
@@ -175,7 +178,7 @@ class GameApp(App):
                     # Colonize
                     self.change_owner(x, y, pid)
                     self.army_updates.append((pid, aid, allied_coord, None))
-                    if SUCCESS_COLONIZING_CHANCE >= random.random():
+                    if config.SUCCESS_COLONIZING_CHANCE >= random.random():
                         # Colonized without issues, can move again
                         self.army_updates.append((pid, aid, None, allied_coord))
                     else:
@@ -217,8 +220,8 @@ class GameApp(App):
                     enemy_armies = []
                 else:
                     enemy_armies = [uid for uid, coord in self.armies[enemy_pid].items() if coord == (x, y)]
-                attacker_roll = sum(random.randint(0, BATTLE_MAX_ROLL) for _ in allied_armies)
-                defender_roll = (sum(random.randint(0, BATTLE_MAX_ROLL) for _ in enemy_armies))
+                attacker_roll = sum(random.randint(0, config.BATTLE_MAX_ROLL) for _ in allied_armies)
+                defender_roll = (sum(random.randint(0, config.BATTLE_MAX_ROLL) for _ in enemy_armies))
                 if attacker_roll > defender_roll:  # Win for attacker
                     if enemy_armies:
                         enemy_aid = enemy_armies.pop(0)

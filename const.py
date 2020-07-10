@@ -9,7 +9,6 @@ IMPASSABLE = 0
 PASSABLE = 1
 OCCUPIABLE = 2
 
-
 COLORS = {
     LAND: ((100, 170, 70), (102, 108, 35)),
     SEA: ((105, 120, 220), (70, 70, 200)),
@@ -18,10 +17,3 @@ COLORS = {
     MOUNTAIN: ((100, 120, 100), (20, 20, 20)),
     DESERT: ((255, 245, 153), (207, 197, 101)),
 }
-
-
-POP_BASE = 1
-POP_GROWTH = .002  # Growth per territory
-POP_REDUCTION = .000000005  # Exponential reduction per territory
-BATTLE_MAX_ROLL = 100
-SUCCESS_COLONIZING_CHANCE = .9
