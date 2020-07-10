@@ -125,8 +125,8 @@ class GameApp(App):
             total = POP_BASE + log(1+land/1000)*30
             self.root.ids.max_pops.text += f"[color=%02x%02x%02x]{int(total)}[/color]\n" % player.color
             growth = max((total - armies) * POP_GROWTH, 0)
+            self.root.ids.new_units.text += f"[color=%02x%02x%02x]{round(growth, 2)}[/color]\n" % player.color
             excess, growth = modf(self.players_armies_excess[pid] + growth)
-            self.root.ids.new_units.text += f"[color=%02x%02x%02x]{round(growth+excess, 3)}[/color]\n" % player.color
             # print(pid, land, land * POP_GROWTH - land ** 2 * POP_REDUCTION, growth, excess)
             self.players_armies_excess[pid] = excess
             for _ in range(int(growth)):
@@ -146,15 +146,15 @@ class GameApp(App):
         total_moves = []
 
         for pid, player in enumerate(self.players):
-            _start_p = time()
-            moves = player.update(army_updates)
-            eps = time() - _start_p
-            for aid, target in moves:
-                total_moves.append((pid, aid, target))
+            eps_start = time()
+            moves = tuple(player.update(army_updates))
+            eps = time() - eps_start
+            total_moves.extend([(pid, aid, target) for aid, target in moves])
             self.eps[pid].append(1. / eps)
             eps = round(sum(self.eps[pid]) / len(self.eps[pid]))
             self.root.ids.territories.text += f"[color=%02x%02x%02x]{self.players_scores[pid]}[/color]\n" % player.color
-            self.root.ids.units.text += f"[color=%02x%02x%02x]{len(self.armies[pid])}[/color]\n" % player.color
+            units_ = round(len(self.armies[pid]) + self.players_armies_excess[pid], 2)
+            self.root.ids.units.text += f"[color=%02x%02x%02x]{units_}[/color]\n" % player.color
             self.root.ids.eps.text += f"[color=%02x%02x%02x]{eps}[/color]\n" % player.color
         # print("Update players took:", time()-_s)
 

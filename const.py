@@ -21,7 +21,7 @@ COLORS = {
 
 
 POP_BASE = 1
-POP_GROWTH = .005  # Growth per territory
+POP_GROWTH = .002  # Growth per territory
 POP_REDUCTION = .000000005  # Exponential reduction per territory
 BATTLE_MAX_ROLL = 100
 SUCCESS_COLONIZING_CHANCE = .9
