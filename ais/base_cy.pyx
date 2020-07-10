@@ -1,5 +1,3 @@
-from const import OCCUPIABLE
-
 MOVES = ((-1, 0), (0, 1), (1, 0), (0, -1))
 ADJC = ((-1, -1), (1, 1), (1, -1), (-1, 1))
 BORDER_CHECKS = MOVES + ((0, 2), (1, 1), (2, 0), (1, -1), (0, -2), (-1, -1), (-2, 0), (-1, 1), (0, 0))
@@ -35,7 +33,7 @@ class AI:
 
             self.armies[pid][aid] = target
             ppid = self.territories[target[0], target[1], 1]
-            if self.territories[target[0], target[1], 0] == OCCUPIABLE and ppid not in (pid, -1):
+            if ppid not in (pid, -1):
                 self.territories[target[0], target[1], 1] = pid
                 try:
                     self.land[ppid].remove(target)

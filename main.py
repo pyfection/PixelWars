@@ -6,7 +6,6 @@ from time import time
 from collections import deque
 from uuid import uuid4
 
-import numpy as np
 from PIL import Image
 from kivy.app import App
 from kivy.config import Config
@@ -16,7 +15,7 @@ Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
 Config.set('graphics', 'window_state', 'maximized')
 
 import config
-from const import *
+from const import TERRAIN, SPEED, POP_VAL, DRAW_ALPHA
 import utils
 
 
@@ -27,6 +26,7 @@ class GameApp(App):
         super().__init__()
         self.map_path = map_path
         self.army_updates = []
+        self.army_speed_excess = {}
 
         base_map = Image.open(self.map_path).convert('RGB')
         self.map_size = base_map.width, base_map.height
@@ -37,7 +37,7 @@ class GameApp(App):
             (x, y)
             for x in range(self.map_size[0])
             for y in range(self.map_size[1])
-            if self.territories[x, y, 0] == OCCUPIABLE
+            if TERRAIN[self.territories[x, y, 0]][SPEED] >= .5
         ]
         utils.prettify_map(base_map, base_map_px)
 
@@ -89,6 +89,7 @@ class GameApp(App):
         # print('########################')
         _start_t = time()
         self.root.ids.eps.text = 'EPS\n'
+        self.root.ids.scores.text = 'Scores\n'
         self.root.ids.territories.text = 'Territories\n'
         self.root.ids.units.text = 'Units\n'
         self.root.ids.new_units.text = 'New Units\n'
@@ -103,14 +104,14 @@ class GameApp(App):
                 continue
             x, y = origin
             if self.territories[x, y, 1] == pid:
-                color = array('B', self.players[pid].color + (200,))
+                color = array('B', self.players[pid].color + (DRAW_ALPHA,))
             else:
                 # Passable but not occupiable
                 color = clear_color
             i = (self.map_size[0] * (self.map_size[1]-y-1) + x) * 4
             self.map_px[i:i+4] = color
         for pid, player in enumerate(self.players):
-            color = array('B', self.players[pid].unit_color + (200,))
+            color = array('B', self.players[pid].unit_color + (255,))
             for x, y in self.armies[pid].values():
                 i = (self.map_size[0] * (self.map_size[1]-y-1) + x) * 4
                 self.map_px[i:i+4] = color
@@ -124,7 +125,7 @@ class GameApp(App):
                 self.root.ids.max_pops.text += f"[color=%02x%02x%02x]0[/color]\n" % player.color
                 self.root.ids.new_units.text += f"[color=%02x%02x%02x]0[/color]\n" % player.color
                 continue
-            land = len(self.land[pid])
+            land = self.players_scores[pid]
             armies = len(self.armies[pid])
             total = config.POP_BASE + log(1 + land * config.POP_HEIGHT) * config.POP_WIDTH
             self.root.ids.max_pops.text += f"[color=%02x%02x%02x]{int(total)}[/color]\n" % player.color
@@ -155,8 +156,9 @@ class GameApp(App):
             total_moves.extend([(pid, aid, target) for aid, target in moves])
             self.eps[pid].append(1. / eps)
             eps = round(sum(self.eps[pid]) / len(self.eps[pid]))
-            self.root.ids.territories.text += f"[color=%02x%02x%02x]{self.players_scores[pid]}[/color]\n" % player.color
             units_ = round(len(self.armies[pid]) + self.players_armies_excess[pid], 2)
+            self.root.ids.scores.text += f"[color=%02x%02x%02x]{self.players_scores[pid]}[/color]\n" % player.color
+            self.root.ids.territories.text += f"[color=%02x%02x%02x]{len(self.land[pid])}[/color]\n" % player.color
             self.root.ids.units.text += f"[color=%02x%02x%02x]{units_}[/color]\n" % player.color
             self.root.ids.eps.text += f"[color=%02x%02x%02x]{eps}[/color]\n" % player.color
         # print("Update players took:", time()-_s)
@@ -174,7 +176,7 @@ class GameApp(App):
             # Check if colonizing
             if target is None:
                 x, y = allied_coord
-                if self.territories[x, y, 0] == OCCUPIABLE and self.territories[x, y, 1] == -1:
+                if self.territories[x, y, 1] == -1:
                     # Colonize
                     self.change_owner(x, y, pid)
                     self.army_updates.append((pid, aid, allied_coord, None))
@@ -186,18 +188,19 @@ class GameApp(App):
                 continue
 
             x, y = target
+            terrain = self.territories[x, y, 0]
+            speed = TERRAIN[terrain][SPEED] + self.army_speed_excess.get(aid, 0)
+            self.army_speed_excess[aid], speed = modf(speed)
+            if speed == 0:
+                continue
+
             # Check if move is valid
-            if self.territories[x, y, 0] not in (OCCUPIABLE, PASSABLE):
-                raise ValueError(f"Player {pid} cannot move army {aid} to {x}, {y} (Not passable)")
-            _move_distance = abs(x - allied_coord[0]) + abs(y - allied_coord[1])
-            if _move_distance != 1:
-                raise ValueError(f"Player {pid} can't move army {aid} {_move_distance} territories")
+            move_distance = abs(x - allied_coord[0]) + abs(y - allied_coord[1])
+            if move_distance != 1:
+                raise ValueError(f"Player {pid} can't move army {aid} {move_distance} territories")
             owner = self.territories[x, y, 1]
-            # Own territory -> simply move army
+            # Own territory or unoccupied -> simply move army
             if owner == pid:
-                self.move_army(pid, aid, allied_coord, (x, y))
-            # Desert or crossing
-            elif self.territories[x, y, 0] == PASSABLE:
                 self.move_army(pid, aid, allied_coord, (x, y))
             # Empty, occupied by enemy or stationed army
             else:
@@ -239,33 +242,33 @@ class GameApp(App):
         self.root.ids.total_ticks.text = str(int(self.root.ids.total_ticks.text) + 1)
 
     def change_owner(self, x, y, pid):
-        assert self.territories[x, y, 0] == OCCUPIABLE
+        assert TERRAIN[self.territories[x, y, 0]][POP_VAL] > 0
         assert pid >= -1
         previous_owner = self.territories[x, y, 1]
+        score = TERRAIN[self.territories[x, y, 0]][POP_VAL]
         if previous_owner == pid:
             return previous_owner
         self.land[pid].add((x, y))
         if previous_owner >= 0:
-            self.players_scores[previous_owner] -= 1
+            self.players_scores[previous_owner] -= score
             self.land[previous_owner].remove((x, y))
         self.territories[x, y, 1] = pid
 
-        self.players_scores[pid] += 1
+        self.players_scores[pid] += score
         return previous_owner
 
     def spawn_army(self, pid, x, y):
-        assert self.territories[x, y, 0] in (OCCUPIABLE, PASSABLE)
         uid = uuid4()
         self.army_updates.append((pid, uid, None, (x, y)))
         self.armies[pid][uid] = (x, y)
 
     def move_army(self, pid, aid, origin, target):
         assert target is not None
-        assert self.territories[target[0], target[1], 0] in (OCCUPIABLE, PASSABLE)
         self.army_updates.append((pid, aid, origin, target))
         self.armies[pid][aid] = target
 
-        if self.territories[target[0], target[1], 0] == OCCUPIABLE and self.territories[target[0], target[1], 1] not in (-1, pid):
+        pop_value = TERRAIN[self.territories[target[0], target[1], 0]][POP_VAL]
+        if self.territories[target[0], target[1], 1] not in (-1, pid) and pop_value > 0:
             self.change_owner(*target, pid)
 
 
@@ -274,7 +277,6 @@ if __name__ == '__main__':
 
     import ujson
 
-    from ais.random_ai import AI as RandomAI
     from ais.expand_c import AI as ExpandAI
     app = GameApp(
         map_path='assets/maps/ImperatorRomeMapSmall.png',
