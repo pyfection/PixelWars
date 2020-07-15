@@ -9,6 +9,8 @@ FOREST = 6
 SPEED = 0
 POP_VAL = 1
 ENTER_SPEED = 2
+DEFENCE_MOD = 3
+ATTACK_MOD = 4
 
 MAP = {
     (0, 255, 0): GRASS,
@@ -32,15 +34,21 @@ TERRAIN = {
     SEA_ROUTE: {
         SPEED: 1.0,
         POP_VAL: 0.0,
-        ENTER_SPEED: 0.07
+        ENTER_SPEED: 0.07,
+        ATTACK_MOD: 0.5,
+        DEFENCE_MOD: 0.5
     },
     BRIDGE: {
         SPEED: 0.7,
-        POP_VAL: 0.0
+        POP_VAL: 0.0,
+        ATTACK_MOD: 0.5,
+        DEFENCE_MOD: 2.0
     },
     MOUNTAIN: {
         SPEED: 0.0,
-        POP_VAL: 0.0
+        POP_VAL: 0.0,
+        ATTACK_MOD: 1.5,
+        DEFENCE_MOD: 2.0
     },
     DESERT: {
         SPEED: 0.2,
@@ -48,13 +56,15 @@ TERRAIN = {
     },
     FOREST: {
         SPEED: 0.2,
-        POP_VAL: 0.5
+        POP_VAL: 0.5,
+        ATTACK_MOD: 1.5,
+        DEFENCE_MOD: 1.5
     },
 }
 
 TERRAIN_COLORS = {
     GRASS: ((100, 170, 70), (102, 108, 35)),
-    SEA: ((70, 110, 210), (50, 70, 200)),
+    SEA: ((60, 90, 175), (40, 55, 160)),
     SEA_ROUTE: ((70, 110, 210), (60, 80, 200)),
     BRIDGE: ((115, 74, 29), (89, 58, 23)),
     MOUNTAIN: ((100, 120, 100), (20, 20, 20)),

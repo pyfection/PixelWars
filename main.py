@@ -15,7 +15,7 @@ Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
 Config.set('graphics', 'window_state', 'maximized')
 
 import config
-from const import TERRAIN, SPEED, POP_VAL, ENTER_SPEED, DRAW_ALPHA
+from const import TERRAIN, SPEED, POP_VAL, ENTER_SPEED, ATTACK_MOD, DEFENCE_MOD, DRAW_ALPHA
 import utils
 
 
@@ -227,8 +227,14 @@ class GameApp(App):
                     enemy_armies = []
                 else:
                     enemy_armies = [uid for uid, coord in self.armies[enemy_pid].items() if coord == (x, y)]
+                terrain = self.territories[allied_coord[0], allied_coord[1], 0]
                 attacker_roll = sum(random.randint(0, config.BATTLE_MAX_ROLL) for _ in allied_armies)
+                attacker_roll = round(attacker_roll * TERRAIN[terrain].get(ATTACK_MOD, 1))
+                terrain = self.territories[x, y, 0]
                 defender_roll = (sum(random.randint(0, config.BATTLE_MAX_ROLL) for _ in enemy_armies))
+                defender_roll = round(defender_roll * TERRAIN[terrain].get(DEFENCE_MOD, 1))
+                if defender_roll:
+                    print()
                 if attacker_roll > defender_roll:  # Win for attacker
                     if enemy_armies:
                         enemy_aid = enemy_armies.pop(0)
