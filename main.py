@@ -15,7 +15,7 @@ Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
 Config.set('graphics', 'window_state', 'maximized')
 
 import config
-from const import TERRAIN, SPEED, POP_VAL, DRAW_ALPHA
+from const import TERRAIN, SPEED, POP_VAL, ENTER_SPEED, DRAW_ALPHA
 import utils
 
 
@@ -130,7 +130,7 @@ class GameApp(App):
             total = config.POP_BASE + log(1 + land * config.POP_HEIGHT) * config.POP_WIDTH
             self.root.ids.max_pops.text += f"[color=%02x%02x%02x]{int(total)}[/color]\n" % player.color
             growth = max((total - armies) * config.POP_GROWTH, 0)
-            self.root.ids.new_units.text += f"[color=%02x%02x%02x]{round(growth, 2)}[/color]\n" % player.color
+            self.root.ids.new_units.text += f"[color=%02x%02x%02x]{round(growth, 3)}[/color]\n" % player.color
             excess, growth = modf(self.players_armies_excess[pid] + growth)
             self.players_armies_excess[pid] = excess
             for _ in range(int(growth)):
@@ -189,7 +189,11 @@ class GameApp(App):
 
             x, y = target
             terrain = self.territories[x, y, 0]
-            speed = TERRAIN[terrain][SPEED] + self.army_speed_excess.get(aid, 0)
+            if self.territories[allied_coord[0], allied_coord[1], 0] != terrain:
+                speed = TERRAIN[terrain].get(ENTER_SPEED) or TERRAIN[terrain][SPEED]
+            else:
+                speed = TERRAIN[terrain][SPEED]
+            speed = speed + self.army_speed_excess.get(aid, 0)
             self.army_speed_excess[aid], speed = modf(speed)
             if speed == 0:
                 continue
@@ -279,7 +283,7 @@ if __name__ == '__main__':
 
     from ais.expand_c import AI as ExpandAI
     app = GameApp(
-        map_path='assets/maps/ImperatorRomeMapSmall.png',
+        map_path='assets/maps/europe1.png',
         players=(
             (ExpandAI, "Dimgray", (105, 105, 105)),
             (ExpandAI, "Gainsboro", (220, 220, 220)),
