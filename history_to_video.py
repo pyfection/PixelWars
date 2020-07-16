@@ -6,6 +6,7 @@ from PIL import Image
 import cv2
 
 import utils
+from const import TERRAIN, POP_VAL, DRAW_ALPHA
 
 
 file_path = sys.argv[1]
@@ -48,16 +49,16 @@ for i, tick_data in enumerate(history):
         # Origin
         if origin:
             x, y = origin
-            if territories[x, y, 0] == 1:  # Passable
+            if TERRAIN[territories[x, y, 0]][POP_VAL] == 0.0:  # Passable
                 img_px[x, y] = img_px_original[x, y]
             elif not any(a[1] == origin for i, a in armies.items() if i != aid):
                 # No more armies left on origin tile, repaint
-                img_px[x, y] = tuple(players[pid]['color'])
+                img_px[x, y] = utils.mix_colors(tuple(players[pid]['color']), img_px_original[x, y], DRAW_ALPHA)
 
         # Target
         if not target:
-            if territories[x, y, 0] == 2:  # Occupiable
-                img_px[x, y] = tuple(players[pid]['color'])
+            if TERRAIN[territories[x, y, 0]][POP_VAL] > 0.0:  # Occupiable
+                img_px[x, y] = utils.mix_colors(tuple(players[pid]['color']), img_px_original[x, y], DRAW_ALPHA)
             armies.pop(aid)
             continue
         x, y = target
