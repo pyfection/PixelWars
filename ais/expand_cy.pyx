@@ -102,5 +102,5 @@ class AI(BaseAI):
     def is_impassable(self, int x, int y):
         return (
             (not (0 <= x < self.territories.shape[0] and 0 <= y < self.territories.shape[1])) or
-            (TERRAIN[self.territories[x, y, 0]][SPEED] <= .5)
+            (TERRAIN[self.territories[x, y, 0]][SPEED] <= 0)
         )

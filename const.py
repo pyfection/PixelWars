@@ -69,6 +69,6 @@ TERRAIN_COLORS = {
     BRIDGE: ((115, 74, 29), (89, 58, 23)),
     MOUNTAIN: ((100, 120, 100), (20, 20, 20)),
     DESERT: ((255, 245, 153), (207, 197, 101)),
-    FOREST: ((41, 70, 0), (0, 50, 0)),
+    FOREST: ((25, 80, 0), (0, 50, 0)),
 }
-DRAW_ALPHA = 150
+DRAW_ALPHA = 0.8  # Lower number makes color of occupied territories more seethrough

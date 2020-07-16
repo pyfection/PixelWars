@@ -37,7 +37,7 @@ class GameApp(App):
             (x, y)
             for x in range(self.map_size[0])
             for y in range(self.map_size[1])
-            if TERRAIN[self.territories[x, y, 0]][SPEED] >= .5
+            if TERRAIN[self.territories[x, y, 0]][POP_VAL] > 0.0
         ]
         utils.prettify_map(base_map, base_map_px)
 
@@ -104,7 +104,7 @@ class GameApp(App):
                 continue
             x, y = origin
             if self.territories[x, y, 1] == pid:
-                color = array('B', self.players[pid].color + (DRAW_ALPHA,))
+                color = array('B', self.players[pid].color + (int(DRAW_ALPHA*255),))
             else:
                 # Passable but not occupiable
                 color = clear_color
@@ -233,8 +233,6 @@ class GameApp(App):
                 terrain = self.territories[x, y, 0]
                 defender_roll = (sum(random.randint(0, config.BATTLE_MAX_ROLL) for _ in enemy_armies))
                 defender_roll = round(defender_roll * TERRAIN[terrain].get(DEFENCE_MOD, 1))
-                if defender_roll:
-                    print()
                 if attacker_roll > defender_roll:  # Win for attacker
                     if enemy_armies:
                         enemy_aid = enemy_armies.pop(0)

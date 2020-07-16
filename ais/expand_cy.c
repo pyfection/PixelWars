@@ -1717,7 +1717,6 @@ static PyObject *__pyx_pf_3ais_8expand_c_2AI_5find_path(CYTHON_UNUSED PyObject *
 static PyObject *__pyx_pf_3ais_8expand_c_2AI_7is_impassable(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, int __pyx_v_x, int __pyx_v_y); /* proto */
 static PyObject *__pyx_tp_new_3ais_8expand_c___pyx_scope_struct__update(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 static PyObject *__pyx_tp_new_3ais_8expand_c___pyx_scope_struct_1_genexpr(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
-static PyObject *__pyx_float__5;
 static PyObject *__pyx_int_0;
 static PyObject *__pyx_int_1;
 static PyObject *__pyx_int_2;
@@ -4898,7 +4897,7 @@ static PyObject *__pyx_pf_3ais_8expand_c_2AI_7is_impassable(CYTHON_UNUSED PyObje
  *     def is_impassable(self, int x, int y):
  *         return (             # <<<<<<<<<<<<<<
  *             (not (0 <= x < self.territories.shape[0] and 0 <= y < self.territories.shape[1])) or
- *             (TERRAIN[self.territories[x, y, 0]][SPEED] <= .5)
+ *             (TERRAIN[self.territories[x, y, 0]][SPEED] <= 0)
  */
   __Pyx_XDECREF(__pyx_r);
 
@@ -4906,7 +4905,7 @@ static PyObject *__pyx_pf_3ais_8expand_c_2AI_7is_impassable(CYTHON_UNUSED PyObje
  *     def is_impassable(self, int x, int y):
  *         return (
  *             (not (0 <= x < self.territories.shape[0] and 0 <= y < self.territories.shape[1])) or             # <<<<<<<<<<<<<<
- *             (TERRAIN[self.territories[x, y, 0]][SPEED] <= .5)
+ *             (TERRAIN[self.territories[x, y, 0]][SPEED] <= 0)
  *         )
  */
   __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_x); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 104, __pyx_L1_error)
@@ -4967,7 +4966,7 @@ static PyObject *__pyx_pf_3ais_8expand_c_2AI_7is_impassable(CYTHON_UNUSED PyObje
   /* "ais/expand_cy.pyx":105
  *         return (
  *             (not (0 <= x < self.territories.shape[0] and 0 <= y < self.territories.shape[1])) or
- *             (TERRAIN[self.territories[x, y, 0]][SPEED] <= .5)             # <<<<<<<<<<<<<<
+ *             (TERRAIN[self.territories[x, y, 0]][SPEED] <= 0)             # <<<<<<<<<<<<<<
  *         )
  */
   __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_TERRAIN); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 105, __pyx_L1_error)
@@ -5003,7 +5002,7 @@ static PyObject *__pyx_pf_3ais_8expand_c_2AI_7is_impassable(CYTHON_UNUSED PyObje
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  __pyx_t_6 = PyObject_RichCompare(__pyx_t_3, __pyx_float__5, Py_LE); __Pyx_XGOTREF(__pyx_t_6); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 105, __pyx_L1_error)
+  __pyx_t_6 = PyObject_RichCompare(__pyx_t_3, __pyx_int_0, Py_LE); __Pyx_XGOTREF(__pyx_t_6); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 105, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_INCREF(__pyx_t_6);
   __pyx_t_1 = __pyx_t_6;
@@ -5563,7 +5562,6 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
 
 static CYTHON_SMALL_CODE int __Pyx_InitGlobals(void) {
   if (__Pyx_InitStrings(__pyx_string_tab) < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  __pyx_float__5 = PyFloat_FromDouble(.5); if (unlikely(!__pyx_float__5)) __PYX_ERR(0, 1, __pyx_L1_error)
   __pyx_int_0 = PyInt_FromLong(0); if (unlikely(!__pyx_int_0)) __PYX_ERR(0, 1, __pyx_L1_error)
   __pyx_int_1 = PyInt_FromLong(1); if (unlikely(!__pyx_int_1)) __PYX_ERR(0, 1, __pyx_L1_error)
   __pyx_int_2 = PyInt_FromLong(2); if (unlikely(!__pyx_int_2)) __PYX_ERR(0, 1, __pyx_L1_error)

@@ -5,7 +5,7 @@ from const import MAP, TERRAIN_COLORS
 
 
 def mix_colors(rgb1, rgb2, amount):
-    return tuple(v1 * amount + v2 * (1-amount) for v1, v2 in zip(rgb1, rgb2))
+    return tuple(int(v1 * amount) + int(v2 * (1-amount)) for v1, v2 in zip(rgb1, rgb2))
 
 
 def territories_from_map(img_px, size):
