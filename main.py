@@ -15,7 +15,7 @@ Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
 Config.set('graphics', 'window_state', 'maximized')
 
 import config
-from const import TERRAIN, SPEED, POP_VAL, ENTER_SPEED, ATTACK_MOD, DEFENCE_MOD, DRAW_ALPHA
+from const import TERRAIN, SPEED, POP_VAL, ENTER_SPEED, ATTACK_MOD, DEFENCE_MOD, BORDER_ALPHA, OCCUPIED_ALPHA, BORDER
 import utils
 
 
@@ -97,24 +97,11 @@ class GameApp(App):
 
         # Update Map
         _s = time()
-        clear_color = array('B', (0, 0, 0, 0))
 
-        for pid, aid, origin, target in self.army_updates:
-            if not origin:
-                continue
-            x, y = origin
-            if self.territories[x, y, 1] == pid:
-                color = array('B', self.players[pid].color + (int(DRAW_ALPHA*255),))
-            else:
-                # Passable but not occupiable
-                color = clear_color
+        for (x, y), color in utils.territories_colors_from_updates(
+                self.army_updates, self.players, self.territories, self.armies):
             i = (self.map_size[0] * (self.map_size[1]-y-1) + x) * 4
-            self.map_px[i:i+4] = color
-        for pid, player in enumerate(self.players):
-            color = array('B', self.players[pid].unit_color + (255,))
-            for x, y in self.armies[pid].values():
-                i = (self.map_size[0] * (self.map_size[1]-y-1) + x) * 4
-                self.map_px[i:i+4] = color
+            self.map_px[i:i+4] = array('B', color)
         self.map.blit_buffer(self.map_px, colorfmt='rgba', bufferfmt='ubyte')
         # print("Update map took:", time()-_s, "for", len(self.army_updates), "updates and", sum(len(armies) for armies in self.armies))
 

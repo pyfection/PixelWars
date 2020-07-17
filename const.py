@@ -71,4 +71,9 @@ TERRAIN_COLORS = {
     DESERT: ((255, 245, 153), (207, 197, 101)),
     FOREST: ((25, 80, 0), (0, 35, 0)),
 }
-DRAW_ALPHA = 0.8  # Lower number makes color of occupied territories more seethrough
+BORDER_ALPHA = 1.0  # Lower number makes color of occupied territories more seethrough
+OCCUPIED_ALPHA = 0.3
+
+MOVES = ((-1, 0), (0, 1), (1, 0), (0, -1))
+ADJC = ((-1, -1), (1, 1), (1, -1), (-1, 1))
+BORDER = MOVES + ADJC + ((0, 2), (2, 0), (0, -2), (-2, 0))
