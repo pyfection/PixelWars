@@ -286,8 +286,15 @@ if __name__ == '__main__':
     import ujson
 
     from ais.expand_c import AI as ExpandAI
+    from map_gen import Generator
+
+    seed = random.randint(0, 100)
+    print("Map Seed:", seed)
+    gen = Generator(seed=seed)
+    img = gen.get_map(480, 270)
+    img.save('temp/gen_map.png')
     app = GameApp(
-        map_path='assets/maps/europe1.png',
+        map_path='temp/gen_map.png',
         players=(
             (ExpandAI, "Dimgray", (105, 105, 105)),
             (ExpandAI, "Gainsboro", (220, 220, 220)),
