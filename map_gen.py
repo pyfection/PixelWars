@@ -10,6 +10,15 @@ from const import MAP, SEA, SEA_ROUTE, GRASS, DESERT, FOREST, MOUNTAIN
 MAP = {value: key for key, value in MAP.items()}
 
 
+BIOMES = {
+    'rainforest': ((FOREST, 1, 1),),
+    'desert': ((DESERT, 1, 1), (SEA_ROUTE, .4, 1)),
+    'grassland': ((GRASS, 1, 1),),
+    'temperate forest': ((GRASS, 1, 1), (FOREST, 1, 7)),
+    'mediterranean': ((GRASS, 1, 1), (FOREST, .5, 7)),
+    'taiga': ((GRASS, .5, 1), (FOREST, 1, 7))
+}
+
 class Generator:
     def __init__(self, seed=0, octaves=8, magnitude=.005):
         self.seed = seed
@@ -24,16 +33,28 @@ class Generator:
         return h * .5 + .5
 
     def get_biome(self, x, y):
-        biomes = (GRASS, DESERT, FOREST)
-        biomes_mods = (1, .5, .8)
-        biomes_mags = (1, .5, 1.5)
+        biomes = tuple(b for b in BIOMES.keys())
         values = []
-        for i, b in enumerate(biomes):
-            magnitude = self.magnitude * biomes_mags[i]
-            v = noise.snoise3(x * magnitude, y * magnitude, self.seed+b, octaves=self.octaves)
-            values.append(v * biomes_mods[i])
+        for i, b in enumerate(biomes, 1):
+            magnitude = self.magnitude
+            v = noise.snoise3(x * magnitude, y * magnitude, self.seed+i, octaves=self.octaves)
+            values.append(v)
         i = values.index(max(values))
         return biomes[i]
+
+    def get_terrain_type(self, x, y):
+        biome = self.get_biome(x, y)
+        terrains = tuple(t[0] for t in BIOMES[biome])
+        biomes_mods = tuple(t[1] for t in BIOMES[biome])
+        biomes_mags = tuple(t[2] for t in BIOMES[biome])
+        values = []
+        for i, b in enumerate(terrains):
+            magnitude = self.magnitude * biomes_mags[i]
+            v = noise.snoise3(x * magnitude, y * magnitude, self.seed+b+10, octaves=self.octaves)
+            v = v * .5 + .5
+            values.append(v * biomes_mods[i])
+        i = values.index(max(values))
+        return terrains[i]
 
     def get_map(self, width, height):
         img = Image.new('RGB', (width, height))
@@ -45,7 +66,7 @@ class Generator:
                 if h > self.mountain_level:
                     color = MAP[MOUNTAIN]
                 elif h > self.nav_sea_level:
-                    color = MAP[self.get_biome(x, y)]
+                    color = MAP[self.get_terrain_type(x, y)]
                 elif h > self.deep_sea_level:
                     color = MAP[SEA_ROUTE]
                 else:
@@ -56,6 +77,6 @@ class Generator:
 
 if __name__ == "__main__":
     from random import randint
-    g = Generator(1)
+    g = Generator(randint(0, 100))
     m = g.get_map(480, 270)
     m.show()
