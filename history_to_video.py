@@ -57,10 +57,10 @@ for i, tick_data in enumerate(history):
 
         if target:
             if territories[x, y, 1] not in (pid, -1):
-                territories[origin[0], origin[1], 1] = pid
+                territories[x, y, 1] = pid
         else:
             if TERRAIN[territories[x, y, 0]][POP_VAL] > 0.0:  # Occupiable
-                territories[origin[0], origin[1], 1] = pid
+                territories[x, y, 1] = pid
             armies[pid].pop(aid)
             continue
         x, y = target
