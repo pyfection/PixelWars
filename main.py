@@ -15,7 +15,7 @@ Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
 Config.set('graphics', 'window_state', 'maximized')
 
 import config
-from const import TERRAIN, SPEED, POP_VAL, ENTER_SPEED, ATTACK_MOD, DEFENCE_MOD, BORDER_ALPHA, OCCUPIED_ALPHA, BORDER
+from const import TERRAIN, SPEED, POP_VAL, ENTER_SPEED, ATTACK_MOD, DEFENCE_MOD, HAZARD, DEFAULT_HAZARD
 import utils
 
 
@@ -211,7 +211,9 @@ class GameApp(App):
                         continue
                     allied_armies.append(aid_)
                 if enemy_pid == -1:
-                    enemy_armies = []
+                    # No territory owner and no enemy army present
+                    self.move_army(pid, aid, allied_coord, target)
+                    continue
                 else:
                     enemy_armies = [uid for uid, coord in self.armies[enemy_pid].items() if coord == (x, y)]
                 terrain = self.territories[allied_coord[0], allied_coord[1], 0]
@@ -231,6 +233,15 @@ class GameApp(App):
                     self.armies[pid].pop(aid)
                     self.army_updates.append((pid, aid, allied_coord, None))
         # print("Process player moves took:", time()-_s)
+
+        # Check for hazardousness of current terrain type
+        for pid, armies in enumerate(self.armies):
+            for aid, (x, y) in list(armies.items()):
+                terrain = self.territories[x, y, 0]
+                hazard = TERRAIN[terrain].get(HAZARD, DEFAULT_HAZARD)
+                if random.random() < hazard:
+                    self.armies[pid].pop(aid)
+                    self.army_updates.append((pid, aid, (x, y), None))
 
         self.tps.append(1. / (time() - _start_t))
         self.root.ids.tps.text = str(round(sum(self.tps) / len(self.tps), 1))

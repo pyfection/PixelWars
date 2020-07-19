@@ -11,6 +11,9 @@ POP_VAL = 1
 ENTER_SPEED = 2
 DEFENCE_MOD = 3
 ATTACK_MOD = 4
+HAZARD = 5
+
+DEFAULT_HAZARD = 1/2500
 
 MAP = {
     (0, 255, 0): GRASS,
@@ -29,14 +32,15 @@ TERRAIN = {
     },
     SEA: {
         SPEED: 0.0,
-        POP_VAL: 0.0
+        POP_VAL: 0.0,
     },
     SEA_ROUTE: {
         SPEED: 1.0,
         POP_VAL: 0.0,
         ENTER_SPEED: 0.07,
         ATTACK_MOD: 0.5,
-        DEFENCE_MOD: 0.5
+        DEFENCE_MOD: 0.5,
+        HAZARD: 1/500
     },
     BRIDGE: {
         SPEED: 0.7,
@@ -52,7 +56,8 @@ TERRAIN = {
     },
     DESERT: {
         SPEED: 0.2,
-        POP_VAL: 0.0
+        POP_VAL: 0.0,
+        HAZARD: 1/500
     },
     FOREST: {
         SPEED: 0.2,
