@@ -15,6 +15,7 @@ class AI:
         self.land = {}
         self.armies = {}  # {player_id: {army_id: coords}}
         self.center = (0, 0)
+        self.max_pop = 0  # gets updated directly by game
 
     def update(self, army_updates):
         for pid, aid, origin, target in army_updates:

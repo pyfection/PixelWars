@@ -39,7 +39,7 @@ TERRAIN = {
         POP_VAL: 0.0,
         ENTER_SPEED: 0.07,
         ATTACK_MOD: 0.5,
-        DEFENCE_MOD: 0.5,
+        DEFENCE_MOD: 1.0,
         HAZARD: 1/500
     },
     BRIDGE: {
@@ -62,7 +62,7 @@ TERRAIN = {
     FOREST: {
         SPEED: 0.2,
         POP_VAL: 0.5,
-        ATTACK_MOD: 1.5,
+        ATTACK_MOD: 0.7,
         DEFENCE_MOD: 1.5
     },
 }
@@ -76,7 +76,7 @@ TERRAIN_COLORS = {
     DESERT: ((255, 245, 153), (207, 197, 101)),
     FOREST: ((25, 80, 0), (0, 35, 0)),
 }
-BORDER_ALPHA = 1.0  # Lower number makes color of occupied territories more seethrough
+BORDER_ALPHA = 0.8  # Lower number makes color of occupied territories more seethrough
 OCCUPIED_ALPHA = 0.3
 
 MOVES = ((-1, 0), (0, 1), (1, 0), (0, -1))

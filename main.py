@@ -114,9 +114,10 @@ class GameApp(App):
                 continue
             land = self.players_scores[pid]
             armies = len(self.armies[pid])
-            total = config.POP_BASE + log(1 + land * config.POP_HEIGHT) * config.POP_WIDTH
-            self.root.ids.max_pops.text += f"[color=%02x%02x%02x]{int(total)}[/color]\n" % player.color
-            growth = max((total - armies) * config.POP_GROWTH, 0)
+            max_pop = config.POP_BASE + log(1 + land * config.POP_HEIGHT) * config.POP_WIDTH
+            player.max_pop = max_pop
+            self.root.ids.max_pops.text += f"[color=%02x%02x%02x]{int(max_pop)}[/color]\n" % player.color
+            growth = max((max_pop - armies) * config.POP_GROWTH, 0)
             self.root.ids.new_units.text += f"[color=%02x%02x%02x]{round(growth, 3)}[/color]\n" % player.color
             excess, growth = modf(self.players_armies_excess[pid] + growth)
             self.players_armies_excess[pid] = excess
@@ -137,6 +138,12 @@ class GameApp(App):
         total_moves = []
 
         for pid, player in enumerate(self.players):
+            if not self.armies[pid] and not self.land[pid]:
+                self.root.ids.scores.text += f"[color=%02x%02x%02x]-[/color]\n" % player.color
+                self.root.ids.territories.text += f"[color=%02x%02x%02x]-[/color]\n" % player.color
+                self.root.ids.units.text += f"[color=%02x%02x%02x]-[/color]\n" % player.color
+                self.root.ids.eps.text += f"[color=%02x%02x%02x]-[/color]\n" % player.color
+                continue
             eps_start = time()
             moves = tuple(player.update(army_updates))
             eps = time() - eps_start
@@ -221,7 +228,7 @@ class GameApp(App):
                 attacker_roll = round(attacker_roll * TERRAIN[terrain].get(ATTACK_MOD, 1))
                 terrain = self.territories[x, y, 0]
                 defender_roll = (sum(random.randint(0, config.BATTLE_MAX_ROLL) for _ in enemy_armies))
-                defender_roll = round(defender_roll * TERRAIN[terrain].get(DEFENCE_MOD, 1))
+                defender_roll = round(defender_roll * TERRAIN[terrain].get(DEFENCE_MOD, 1.5))
                 if attacker_roll > defender_roll:  # Win for attacker
                     if enemy_armies:
                         enemy_aid = enemy_armies.pop(0)
@@ -237,6 +244,8 @@ class GameApp(App):
         # Check for hazardousness of current terrain type
         for pid, armies in enumerate(self.armies):
             for aid, (x, y) in list(armies.items()):
+                if self.territories[x, y, 1] == pid:
+                    continue
                 terrain = self.territories[x, y, 0]
                 hazard = TERRAIN[terrain].get(HAZARD, DEFAULT_HAZARD)
                 if random.random() < hazard:
@@ -284,26 +293,28 @@ if __name__ == '__main__':
     import ujson
 
     from ais.expand_c import AI as ExpandAI
+    from ais.burst import AI as BurstAI
     from map_gen import Generator
 
     seed = random.randint(0, 100)
     print("Map Seed:", seed)
     gen = Generator(seed=seed)
+    path = f'temp/gen_map_{seed}.png'
     img = gen.get_map(480, 270)
-    img.save('temp/gen_map.png')
+    img.save(path)
     app = GameApp(
-        map_path='temp/gen_map.png',
+        map_path=path,
         players=(
-            (ExpandAI, "Dimgray", (105, 105, 105)),
-            (ExpandAI, "Gainsboro", (220, 220, 220)),
-            (ExpandAI, "Midnight", (25, 25, 112)),
-            (ExpandAI, "Darkred", (139, 0, 0)),
-            (ExpandAI, "Olive", (128, 128, 0)),
-            (ExpandAI, "Seagreen", (16, 179, 113)),
-            (ExpandAI, "Red", (255, 0, 0)),
-            (ExpandAI, "Orange", (255, 140, 0)),
-            (ExpandAI, "Gold", (255, 215, 0)),
-            (ExpandAI, "Violet", (199, 21, 133)),
+            (BurstAI, "Dimgray", (105, 105, 105)),
+            (BurstAI, "Gainsboro", (220, 220, 220)),
+            (BurstAI, "Midnight", (25, 25, 112)),
+            (BurstAI, "Darkred", (139, 0, 0)),
+            (BurstAI, "Olive", (128, 128, 0)),
+            (BurstAI, "Seagreen", (16, 179, 113)),
+            (BurstAI, "Red", (255, 0, 0)),
+            (BurstAI, "Orange", (255, 140, 0)),
+            (BurstAI, "Gold", (255, 215, 0)),
+            (BurstAI, "Violet", (199, 21, 133)),
             (ExpandAI, "Springgreen", (0, 255, 127)),
             (ExpandAI, "Aqua", (0, 255, 255)),
             (ExpandAI, "Sky", (0, 191, 255)),
