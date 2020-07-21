@@ -23,7 +23,7 @@ except IndexError:
 try:
     fps = int(sys.argv[4])
 except IndexError:
-    fps = 30
+    fps = 60
 
 file_name = file_path.rstrip('.json')
 with open(file_path, 'r') as f:
