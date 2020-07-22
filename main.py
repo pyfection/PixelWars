@@ -294,6 +294,7 @@ if __name__ == '__main__':
 
     from ais.expand_c import AI as ExpandAI
     from ais.burst import AI as BurstAI
+    from ais.ant import AI as AntAI
     from map_gen import Generator
 
     seed = random.randint(0, 100)
@@ -308,7 +309,7 @@ if __name__ == '__main__':
             (BurstAI, "Dimgray", (105, 105, 105)),
             (BurstAI, "Gainsboro", (220, 220, 220)),
             (BurstAI, "Midnight", (25, 25, 112)),
-            (BurstAI, "Darkred", (139, 0, 0)),
+            (AntAI, "Darkred", (139, 0, 0)),
             (BurstAI, "Olive", (128, 128, 0)),
             (BurstAI, "Seagreen", (16, 179, 113)),
             (BurstAI, "Red", (255, 0, 0)),
