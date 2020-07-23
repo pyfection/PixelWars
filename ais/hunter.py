@@ -15,16 +15,16 @@ Node = namedtuple('Node', ('pos', 'parent', 'children', 'dist'))
 
 class AI(BaseAI):
     NAME = "HunterAI"
-    DETECTION_RADIUS = 10
+    DETECTION_RADIUS = 5
     MIN_RELATIVE_STRENGTH_ATTACK = 1.5  # times amount of own units stronger with attacker bonus compared to defender
     MIN_RELATIVE_STRENGTH_DEFEND = 1.5
     CAUTION = 20000  # Terrain hazardousness times CAUTION is added to path finding cost
+    MIN_ALLIES_IN_RANGE = 2
 
     def __init__(self, pid, name, color, territories):
         super().__init__(pid, name, color, territories)
         self.paths = {}
-        self.hunters = {}
-        self.targets = {}
+        self.blocked_paths = np.zeros(self.territories.shape[:2])
 
     def update(self, army_updates):
         super().update(army_updates)
@@ -57,21 +57,17 @@ class AI(BaseAI):
                 enemy = None
             if enemy:
                 eaid, (ex, ey), dist = enemy
-                try:
-                    self.targets[self.hunters[aid]].remove(aid)
-                except KeyError:
-                    pass
-                try:
-                    self.targets[eaid].add(aid)
-                except KeyError:
-                    self.targets[eaid] = {aid}
-                self.hunters[aid] = eaid
 
-                relative_attack_strength = len(self.targets[eaid]) / self.MIN_RELATIVE_STRENGTH_ATTACK
-                if relative_attack_strength * TERRAIN[self.territories[ax, ay, 0]].get(ATTACK_MOD, DEFAULT_ATTACK_MOD) >= len(enemies) * TERRAIN[self.territories[ex, ey, 0]].get(DEFENCE_MOD, DEFAULT_DEFENCE_MOD) or len(own_armies) >= self.max_pop * .9:
+                allies = tuple(
+                    eaid
+                    for eaid, (ex, ey) in self.armies[self.pid].items()
+                    if abs(ex - ax) + abs(ey - ay) <= self.DETECTION_RADIUS
+                )
+                relative_attack_strength = len(allies) / self.MIN_RELATIVE_STRENGTH_ATTACK
+                if relative_attack_strength * TERRAIN[self.territories[ax, ay, 0]].get(ATTACK_MOD, DEFAULT_ATTACK_MOD) >= len(enemies) * TERRAIN[self.territories[ex, ey, 0]].get(DEFENCE_MOD, DEFAULT_DEFENCE_MOD) or len(own_armies) >= self.max_pop * .8:
                     # If hunters are at least twice as many as detected enemies, then attack
                     pass
-                elif (len(self.targets[eaid]) * TERRAIN[self.territories[ax, ay, 0]].get(DEFENCE_MOD, DEFAULT_DEFENCE_MOD)) / self.MIN_RELATIVE_STRENGTH_DEFEND >= len(enemies) * TERRAIN[self.territories[ex, ey, 0]].get(ATTACK_MOD, DEFAULT_ATTACK_MOD):
+                elif dist <= 4 and (len(allies) * TERRAIN[self.territories[ax, ay, 0]].get(DEFENCE_MOD, DEFAULT_DEFENCE_MOD)) / self.MIN_RELATIVE_STRENGTH_DEFEND >= len(enemies) * TERRAIN[self.territories[ex, ey, 0]].get(ATTACK_MOD, DEFAULT_ATTACK_MOD):
                     # Army has good chance of winning a defensive battle, staying
                     self.paths.pop(aid, None)
                     continue
@@ -104,41 +100,50 @@ class AI(BaseAI):
                 yield aid, (x, y)
                 continue
 
-            # Tries to get saved path
-            try:
-                path = self.paths[aid]
-                if path[0] == (ax, ay):
-                    path.pop(0)
-                    if not path:
-                        self.paths.pop(aid)
-                        raise KeyError
-                yield aid, path[0]
+            # Tries to find adjacent territory which is passable, occupiable and not occupied by self
+            target_moves = []
+            for i, (ox, oy) in enumerate(MOVES):
+                rx, ry = ax + ox, ay + oy
+                if not self.is_passable(rx, ry):
+                    continue
+                if TERRAIN[self.territories[rx, ry, 0]][POP_VAL] <= 0:
+                    continue
+                if self.territories[rx, ry, 1] == self.pid:
+                    continue
+                # Number of adjacent owned territories
+                a = sum(1 for ox_, oy_ in ADJC if self.is_passable(rx+ox_, ry+oy_) and self.territories[rx+ox_, ry+oy_, 1] == self.pid)
+                e = int(self.territories[rx, ry, 1] not in (self.pid, -1))
+                s = TERRAIN[self.territories[rx, ry, 0]][SPEED]
+                target_moves.append((a, e, s, i))
+            if target_moves:
+                # Check if there are enough nearby allies to keep pushing
+                self.paths.pop(aid, None)
+                ox, oy = MOVES[sorted(target_moves, reverse=True)[0][-1]]
+                x, y = ax + ox, ay + oy
+                if self.territories[x, y, 1] not in (self.pid, -1):
+                    allies = tuple(
+                        eaid
+                        for eaid, (ex, ey) in self.armies[self.pid].items()
+                        if abs(ex - ax) + abs(ey - ay) <= self.DETECTION_RADIUS
+                    )
+                    if len(allies) <= self.MIN_ALLIES_IN_RANGE:
+                        continue
+                yield aid, (x, y)
                 continue
 
-            # Tries to find good adjacent territory
-            except KeyError:
-                # Tries to find adjacent territory which is passable, occupiable and not occupied by self
-                target_moves = []
-                for i, (ox, oy) in enumerate(MOVES):
-                    rx, ry = ax + ox, ay + oy
-                    if not self.is_passable(rx, ry):
-                        continue
-                    if TERRAIN[self.territories[rx, ry, 0]][POP_VAL] <= 0:
-                        continue
-                    if self.territories[rx, ry, 1] == self.pid:
-                        continue
-                    # Number of adjacent owned territories
-                    a = sum(1 for ox_, oy_ in ADJC if self.is_passable(rx+ox_, ry+oy_) and self.territories[rx+ox_, ry+oy_, 1] == self.pid)
-                    e = int(self.territories[rx, ry, 1] not in (self.pid, -1))
-                    s = TERRAIN[self.territories[rx, ry, 0]][SPEED]
-                    target_moves.append((a, e, s, i))
-                if target_moves:
-                    self.paths.pop(aid, None)
-                    ox, oy = MOVES[sorted(target_moves, reverse=True)[0][-1]]
-                    x, y = ax + ox, ay + oy
-                    self.paths.pop(aid, None)
-                    yield aid, (x, y)
+            # Tries to get saved path
+            else:
+                try:
+                    path = self.paths[aid]
+                    if path[0] == (ax, ay):
+                        path.pop(0)
+                        if not path:
+                            self.paths.pop(aid)
+                            raise KeyError
+                    yield aid, path[0]
                     continue
+                except KeyError:
+                    pass
 
             # If everything else fails, find a path
             path = self.find_path(ax, ay)
@@ -151,18 +156,6 @@ class AI(BaseAI):
                 raise IndexError(f"Path is empty for starting pos ({ax}, {ay})")
             yield aid, (x, y)
 
-    def on_army_death(self, pid, aid):
-        if pid == self.pid:
-            target = self.hunters.pop(aid, None)
-            try:
-                self.targets.get(target, set()).remove(aid)
-            except KeyError:
-                pass
-        else:
-            hunters = self.targets.pop(aid, ())
-            for hunter in hunters:
-                self.hunters.pop(hunter, None)
-
     def find_path(self, x, y, target=None):
         start_node = Node(pos=(x, y), parent=None, children=[], dist=0)
         nodes = [start_node]
@@ -174,9 +167,16 @@ class AI(BaseAI):
             if self.territories[x, y, 1] != self.pid and TERRAIN[self.territories[x, y, 0]][POP_VAL] > 0:
                 break
 
+            walls_num = 0
             for i, (ox, oy) in enumerate(MOVES):
                 rx, ry = x + ox, y + oy
+                if node.parent and node.parent.pos == (rx, ry):
+                    continue
                 if not self.is_passable(rx, ry):
+                    walls_num += 1
+                    continue
+                if self.blocked_paths[rx, ry] == 1:
+                    walls_num += 1
                     continue
                 if checked_nodes[rx, ry]:
                     # once all nodes around a node have been checked, current node could be removed from checked, right?
@@ -194,8 +194,10 @@ class AI(BaseAI):
                 if target:
                     dist += abs(target[0] - rx) + abs(target[1] - ry)
                 nodes.append(Node(pos=(rx, ry), parent=node, children=[], dist=dist))
-                nodes.sort(key=lambda n: n.dist)
                 checked_nodes[rx, ry] = 1
+            nodes.sort(key=lambda n: n.dist)
+            if walls_num >= 2 and TERRAIN[self.territories[x, y, 0]][POP_VAL] <= 0:
+                self.blocked_paths[x, y] = 1
 
         path = []
         while node.parent:

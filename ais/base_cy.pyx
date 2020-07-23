@@ -27,6 +27,7 @@ class AI:
                 self.on_army_death(pid, aid)
                 if self.territories[origin[0], origin[1], 1] == -1:  # colonized
                     self.territories[origin[0], origin[1], 1] = pid
+                    self.on_land_conquest(*origin, -1, pid)
                     try:
                         self.land[pid].add(origin)
                     except KeyError:
@@ -37,6 +38,7 @@ class AI:
             ppid = self.territories[target[0], target[1], 1]
             if ppid not in (pid, -1):
                 self.territories[target[0], target[1], 1] = pid
+                self.on_land_conquest(*target, ppid, pid)
                 try:
                     self.land[ppid].remove(target)
                 except KeyError:
@@ -47,4 +49,7 @@ class AI:
                     self.land[pid] = {target}
 
     def on_army_death(self, pid, aid):
+        pass
+
+    def on_land_conquest(self, x, y, old_pid, new_pid):
         pass

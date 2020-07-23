@@ -80,7 +80,6 @@ class GameApp(App):
         self.root.ids.ai_names.text = 'Name\n'
         self.root.ids.ai_types.text = 'Type\n'
         for player in self.players:
-            name = player.NAME
             self.root.ids.ai_names.text += f"[color=%02x%02x%02x]{player.name}[/color]\n" % player.color
             self.root.ids.ai_types.text += f"[color=%02x%02x%02x]{player.NAME}[/color]\n" % player.color
         Clock.schedule_interval(app.tick, 0)
