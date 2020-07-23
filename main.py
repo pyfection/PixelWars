@@ -295,6 +295,7 @@ if __name__ == '__main__':
     from ais.expand_c import AI as ExpandAI
     from ais.burst import AI as BurstAI
     from ais.ant import AI as AntAI
+    from ais.hunter import AI as HunterAI
     from map_gen import Generator
 
     seed = random.randint(0, 100)
@@ -309,16 +310,16 @@ if __name__ == '__main__':
             (BurstAI, "Dimgray", (105, 105, 105)),
             (BurstAI, "Gainsboro", (220, 220, 220)),
             (BurstAI, "Midnight", (25, 25, 112)),
-            (AntAI, "Darkred", (139, 0, 0)),
             (BurstAI, "Olive", (128, 128, 0)),
-            (BurstAI, "Seagreen", (16, 179, 113)),
             (BurstAI, "Red", (255, 0, 0)),
             (BurstAI, "Orange", (255, 140, 0)),
-            (BurstAI, "Gold", (255, 215, 0)),
-            (BurstAI, "Violet", (199, 21, 133)),
-            (ExpandAI, "Springgreen", (0, 255, 127)),
-            (ExpandAI, "Aqua", (0, 255, 255)),
-            (ExpandAI, "Sky", (0, 191, 255)),
+            (AntAI, "Darkred", (139, 0, 0)),
+            (HunterAI, "Seagreen", (16, 179, 113)),
+            (HunterAI, "Gold", (255, 215, 0)),
+            (HunterAI, "Violet", (199, 21, 133)),
+            (HunterAI, "Springgreen", (0, 255, 127)),
+            (HunterAI, "Aqua", (0, 255, 255)),
+            (HunterAI, "Sky", (0, 191, 255)),
             (ExpandAI, "Blue", (0, 0, 255)),
             (ExpandAI, "Greenyellow", (173, 255, 47)),
             (ExpandAI, "Fuchsia", (255, 0, 255)),
