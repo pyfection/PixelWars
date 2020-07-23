@@ -30,7 +30,7 @@ class AI(BaseAI):
 
         self.ticks += 1
         own_armies = self.armies[self.pid]
-        if own_armies:
+        # if own_armies:
             # print("\n\nCurrent tick:", self.ticks)
 
         for aid, (ax, ay) in own_armies.items():

@@ -1460,13 +1460,16 @@ static const char __pyx_k_unit_color[] = "unit_color";
 static const char __pyx_k_territories[] = "territories";
 static const char __pyx_k_army_updates[] = "army_updates";
 static const char __pyx_k_BORDER_CHECKS[] = "BORDER_CHECKS";
+static const char __pyx_k_on_army_death[] = "on_army_death";
 static const char __pyx_k_ais_base_cy_pyx[] = "ais/base_cy.pyx";
+static const char __pyx_k_AI_on_army_death[] = "AI.on_army_death";
 static const char __pyx_k_cline_in_traceback[] = "cline_in_traceback";
 static const char __pyx_k_AI___init___locals_genexpr[] = "AI.__init__.<locals>.genexpr";
 static PyObject *__pyx_n_s_ADJC;
 static PyObject *__pyx_n_s_AI;
 static PyObject *__pyx_n_s_AI___init;
 static PyObject *__pyx_n_s_AI___init___locals_genexpr;
+static PyObject *__pyx_n_s_AI_on_army_death;
 static PyObject *__pyx_n_s_AI_update;
 static PyObject *__pyx_n_s_BORDER_CHECKS;
 static PyObject *__pyx_n_s_BaseAI;
@@ -1494,6 +1497,7 @@ static PyObject *__pyx_n_s_metaclass;
 static PyObject *__pyx_n_s_module;
 static PyObject *__pyx_n_s_name;
 static PyObject *__pyx_n_s_name_2;
+static PyObject *__pyx_n_s_on_army_death;
 static PyObject *__pyx_n_s_origin;
 static PyObject *__pyx_n_s_pid;
 static PyObject *__pyx_n_s_pop;
@@ -1512,6 +1516,7 @@ static PyObject *__pyx_n_s_update;
 static PyObject *__pyx_pf_3ais_6base_c_2AI_8__init___genexpr(PyObject *__pyx_self); /* proto */
 static PyObject *__pyx_pf_3ais_6base_c_2AI___init__(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, int __pyx_v_pid, PyObject *__pyx_v_name, PyObject *__pyx_v_color, PyObject *__pyx_v_territories); /* proto */
 static PyObject *__pyx_pf_3ais_6base_c_2AI_2update(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_army_updates); /* proto */
+static PyObject *__pyx_pf_3ais_6base_c_2AI_4on_army_death(CYTHON_UNUSED PyObject *__pyx_self, CYTHON_UNUSED PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v_pid, CYTHON_UNUSED PyObject *__pyx_v_aid); /* proto */
 static PyObject *__pyx_tp_new_3ais_6base_c___pyx_scope_struct____init__(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 static PyObject *__pyx_tp_new_3ais_6base_c___pyx_scope_struct_1_genexpr(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 static PyObject *__pyx_float__5;
@@ -1538,8 +1543,10 @@ static PyObject *__pyx_tuple__15;
 static PyObject *__pyx_tuple__16;
 static PyObject *__pyx_tuple__17;
 static PyObject *__pyx_tuple__19;
+static PyObject *__pyx_tuple__21;
 static PyObject *__pyx_codeobj__18;
 static PyObject *__pyx_codeobj__20;
+static PyObject *__pyx_codeobj__22;
 /* Late includes */
 
 /* "ais/base_cy.pyx":9
@@ -2026,10 +2033,10 @@ static PyObject *__pyx_pf_3ais_6base_c_2AI_2update(CYTHON_UNUSED PyObject *__pyx
   PyObject *(*__pyx_t_10)(PyObject *);
   int __pyx_t_11;
   int __pyx_t_12;
-  PyObject *__pyx_t_13 = NULL;
+  int __pyx_t_13;
   PyObject *__pyx_t_14 = NULL;
   PyObject *__pyx_t_15 = NULL;
-  int __pyx_t_16;
+  PyObject *__pyx_t_16 = NULL;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
@@ -2192,7 +2199,7 @@ static PyObject *__pyx_pf_3ais_6base_c_2AI_2update(CYTHON_UNUSED PyObject *__pyx
  * 
  *             if target is None:  # Army got destroyed or colonized             # <<<<<<<<<<<<<<
  *                 self.armies[pid].pop(aid)
- *                 if self.territories[origin[0], origin[1], 1] == -1:  # colonized
+ *                 self.on_army_death(pid, aid)
  */
     __pyx_t_12 = (__pyx_v_target == Py_None);
     __pyx_t_11 = (__pyx_t_12 != 0);
@@ -2202,8 +2209,8 @@ static PyObject *__pyx_pf_3ais_6base_c_2AI_2update(CYTHON_UNUSED PyObject *__pyx
  * 
  *             if target is None:  # Army got destroyed or colonized
  *                 self.armies[pid].pop(aid)             # <<<<<<<<<<<<<<
+ *                 self.on_army_death(pid, aid)
  *                 if self.territories[origin[0], origin[1], 1] == -1:  # colonized
- *                     self.territories[origin[0], origin[1], 1] = pid
  */
       __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_armies); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 26, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_8);
@@ -2233,67 +2240,123 @@ static PyObject *__pyx_pf_3ais_6base_c_2AI_2update(CYTHON_UNUSED PyObject *__pyx
       /* "ais/base_cy.pyx":27
  *             if target is None:  # Army got destroyed or colonized
  *                 self.armies[pid].pop(aid)
+ *                 self.on_army_death(pid, aid)             # <<<<<<<<<<<<<<
+ *                 if self.territories[origin[0], origin[1], 1] == -1:  # colonized
+ *                     self.territories[origin[0], origin[1], 1] = pid
+ */
+      __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_on_army_death); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 27, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_8);
+      __pyx_t_7 = NULL;
+      __pyx_t_13 = 0;
+      if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_8))) {
+        __pyx_t_7 = PyMethod_GET_SELF(__pyx_t_8);
+        if (likely(__pyx_t_7)) {
+          PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_8);
+          __Pyx_INCREF(__pyx_t_7);
+          __Pyx_INCREF(function);
+          __Pyx_DECREF_SET(__pyx_t_8, function);
+          __pyx_t_13 = 1;
+        }
+      }
+      #if CYTHON_FAST_PYCALL
+      if (PyFunction_Check(__pyx_t_8)) {
+        PyObject *__pyx_temp[3] = {__pyx_t_7, __pyx_v_pid, __pyx_v_aid};
+        __pyx_t_4 = __Pyx_PyFunction_FastCall(__pyx_t_8, __pyx_temp+1-__pyx_t_13, 2+__pyx_t_13); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 27, __pyx_L1_error)
+        __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
+        __Pyx_GOTREF(__pyx_t_4);
+      } else
+      #endif
+      #if CYTHON_FAST_PYCCALL
+      if (__Pyx_PyFastCFunction_Check(__pyx_t_8)) {
+        PyObject *__pyx_temp[3] = {__pyx_t_7, __pyx_v_pid, __pyx_v_aid};
+        __pyx_t_4 = __Pyx_PyCFunction_FastCall(__pyx_t_8, __pyx_temp+1-__pyx_t_13, 2+__pyx_t_13); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 27, __pyx_L1_error)
+        __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
+        __Pyx_GOTREF(__pyx_t_4);
+      } else
+      #endif
+      {
+        __pyx_t_6 = PyTuple_New(2+__pyx_t_13); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 27, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_6);
+        if (__pyx_t_7) {
+          __Pyx_GIVEREF(__pyx_t_7); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_7); __pyx_t_7 = NULL;
+        }
+        __Pyx_INCREF(__pyx_v_pid);
+        __Pyx_GIVEREF(__pyx_v_pid);
+        PyTuple_SET_ITEM(__pyx_t_6, 0+__pyx_t_13, __pyx_v_pid);
+        __Pyx_INCREF(__pyx_v_aid);
+        __Pyx_GIVEREF(__pyx_v_aid);
+        PyTuple_SET_ITEM(__pyx_t_6, 1+__pyx_t_13, __pyx_v_aid);
+        __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_8, __pyx_t_6, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 27, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_4);
+        __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+      }
+      __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
+      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+
+      /* "ais/base_cy.pyx":28
+ *                 self.armies[pid].pop(aid)
+ *                 self.on_army_death(pid, aid)
  *                 if self.territories[origin[0], origin[1], 1] == -1:  # colonized             # <<<<<<<<<<<<<<
  *                     self.territories[origin[0], origin[1], 1] = pid
  *                     try:
  */
-      __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_territories); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 27, __pyx_L1_error)
+      __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_territories); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 28, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
-      __pyx_t_8 = __Pyx_GetItemInt(__pyx_v_origin, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 27, __pyx_L1_error)
+      __pyx_t_8 = __Pyx_GetItemInt(__pyx_v_origin, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 28, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_8);
-      __pyx_t_7 = __Pyx_GetItemInt(__pyx_v_origin, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 27, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_7);
-      __pyx_t_6 = PyTuple_New(3); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 27, __pyx_L1_error)
+      __pyx_t_6 = __Pyx_GetItemInt(__pyx_v_origin, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 28, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_6);
+      __pyx_t_7 = PyTuple_New(3); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 28, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_7);
       __Pyx_GIVEREF(__pyx_t_8);
-      PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_8);
-      __Pyx_GIVEREF(__pyx_t_7);
-      PyTuple_SET_ITEM(__pyx_t_6, 1, __pyx_t_7);
+      PyTuple_SET_ITEM(__pyx_t_7, 0, __pyx_t_8);
+      __Pyx_GIVEREF(__pyx_t_6);
+      PyTuple_SET_ITEM(__pyx_t_7, 1, __pyx_t_6);
       __Pyx_INCREF(__pyx_int_1);
       __Pyx_GIVEREF(__pyx_int_1);
-      PyTuple_SET_ITEM(__pyx_t_6, 2, __pyx_int_1);
+      PyTuple_SET_ITEM(__pyx_t_7, 2, __pyx_int_1);
       __pyx_t_8 = 0;
-      __pyx_t_7 = 0;
-      __pyx_t_7 = __Pyx_PyObject_GetItem(__pyx_t_4, __pyx_t_6); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 27, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_7);
-      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-      __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-      __pyx_t_6 = __Pyx_PyInt_EqObjC(__pyx_t_7, __pyx_int_neg_1, -1L, 0); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 27, __pyx_L1_error)
+      __pyx_t_6 = 0;
+      __pyx_t_6 = __Pyx_PyObject_GetItem(__pyx_t_4, __pyx_t_7); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 28, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_6);
+      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
       __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-      __pyx_t_11 = __Pyx_PyObject_IsTrue(__pyx_t_6); if (unlikely(__pyx_t_11 < 0)) __PYX_ERR(0, 27, __pyx_L1_error)
+      __pyx_t_7 = __Pyx_PyInt_EqObjC(__pyx_t_6, __pyx_int_neg_1, -1L, 0); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 28, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_7);
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+      __pyx_t_11 = __Pyx_PyObject_IsTrue(__pyx_t_7); if (unlikely(__pyx_t_11 < 0)) __PYX_ERR(0, 28, __pyx_L1_error)
+      __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
       if (__pyx_t_11) {
 
-        /* "ais/base_cy.pyx":28
- *                 self.armies[pid].pop(aid)
+        /* "ais/base_cy.pyx":29
+ *                 self.on_army_death(pid, aid)
  *                 if self.territories[origin[0], origin[1], 1] == -1:  # colonized
  *                     self.territories[origin[0], origin[1], 1] = pid             # <<<<<<<<<<<<<<
  *                     try:
  *                         self.land[pid].add(origin)
  */
-        __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_territories); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 28, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_6);
-        __pyx_t_7 = __Pyx_GetItemInt(__pyx_v_origin, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 28, __pyx_L1_error)
+        __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_territories); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 29, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_7);
-        __pyx_t_4 = __Pyx_GetItemInt(__pyx_v_origin, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 28, __pyx_L1_error)
+        __pyx_t_6 = __Pyx_GetItemInt(__pyx_v_origin, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 29, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_6);
+        __pyx_t_4 = __Pyx_GetItemInt(__pyx_v_origin, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 29, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_4);
-        __pyx_t_8 = PyTuple_New(3); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 28, __pyx_L1_error)
+        __pyx_t_8 = PyTuple_New(3); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 29, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_8);
-        __Pyx_GIVEREF(__pyx_t_7);
-        PyTuple_SET_ITEM(__pyx_t_8, 0, __pyx_t_7);
+        __Pyx_GIVEREF(__pyx_t_6);
+        PyTuple_SET_ITEM(__pyx_t_8, 0, __pyx_t_6);
         __Pyx_GIVEREF(__pyx_t_4);
         PyTuple_SET_ITEM(__pyx_t_8, 1, __pyx_t_4);
         __Pyx_INCREF(__pyx_int_1);
         __Pyx_GIVEREF(__pyx_int_1);
         PyTuple_SET_ITEM(__pyx_t_8, 2, __pyx_int_1);
-        __pyx_t_7 = 0;
+        __pyx_t_6 = 0;
         __pyx_t_4 = 0;
-        if (unlikely(PyObject_SetItem(__pyx_t_6, __pyx_t_8, __pyx_v_pid) < 0)) __PYX_ERR(0, 28, __pyx_L1_error)
-        __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+        if (unlikely(PyObject_SetItem(__pyx_t_7, __pyx_t_8, __pyx_v_pid) < 0)) __PYX_ERR(0, 29, __pyx_L1_error)
+        __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
         __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
 
-        /* "ais/base_cy.pyx":29
+        /* "ais/base_cy.pyx":30
  *                 if self.territories[origin[0], origin[1], 1] == -1:  # colonized
  *                     self.territories[origin[0], origin[1], 1] = pid
  *                     try:             # <<<<<<<<<<<<<<
@@ -2303,45 +2366,45 @@ static PyObject *__pyx_pf_3ais_6base_c_2AI_2update(CYTHON_UNUSED PyObject *__pyx
         {
           __Pyx_PyThreadState_declare
           __Pyx_PyThreadState_assign
-          __Pyx_ExceptionSave(&__pyx_t_13, &__pyx_t_14, &__pyx_t_15);
-          __Pyx_XGOTREF(__pyx_t_13);
+          __Pyx_ExceptionSave(&__pyx_t_14, &__pyx_t_15, &__pyx_t_16);
           __Pyx_XGOTREF(__pyx_t_14);
           __Pyx_XGOTREF(__pyx_t_15);
+          __Pyx_XGOTREF(__pyx_t_16);
           /*try:*/ {
 
-            /* "ais/base_cy.pyx":30
+            /* "ais/base_cy.pyx":31
  *                     self.territories[origin[0], origin[1], 1] = pid
  *                     try:
  *                         self.land[pid].add(origin)             # <<<<<<<<<<<<<<
  *                     except KeyError:
  *                         self.land[pid] = {origin}
  */
-            __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_land); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 30, __pyx_L10_error)
-            __Pyx_GOTREF(__pyx_t_6);
-            __pyx_t_4 = __Pyx_PyObject_GetItem(__pyx_t_6, __pyx_v_pid); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 30, __pyx_L10_error)
+            __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_land); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 31, __pyx_L10_error)
+            __Pyx_GOTREF(__pyx_t_7);
+            __pyx_t_4 = __Pyx_PyObject_GetItem(__pyx_t_7, __pyx_v_pid); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 31, __pyx_L10_error)
             __Pyx_GOTREF(__pyx_t_4);
-            __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-            __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_add); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 30, __pyx_L10_error)
-            __Pyx_GOTREF(__pyx_t_6);
+            __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
+            __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_add); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 31, __pyx_L10_error)
+            __Pyx_GOTREF(__pyx_t_7);
             __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
             __pyx_t_4 = NULL;
-            if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_6))) {
-              __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_6);
+            if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_7))) {
+              __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_7);
               if (likely(__pyx_t_4)) {
-                PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_6);
+                PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_7);
                 __Pyx_INCREF(__pyx_t_4);
                 __Pyx_INCREF(function);
-                __Pyx_DECREF_SET(__pyx_t_6, function);
+                __Pyx_DECREF_SET(__pyx_t_7, function);
               }
             }
-            __pyx_t_8 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_6, __pyx_t_4, __pyx_v_origin) : __Pyx_PyObject_CallOneArg(__pyx_t_6, __pyx_v_origin);
+            __pyx_t_8 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_7, __pyx_t_4, __pyx_v_origin) : __Pyx_PyObject_CallOneArg(__pyx_t_7, __pyx_v_origin);
             __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-            if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 30, __pyx_L10_error)
+            if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 31, __pyx_L10_error)
             __Pyx_GOTREF(__pyx_t_8);
-            __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+            __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
             __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
 
-            /* "ais/base_cy.pyx":29
+            /* "ais/base_cy.pyx":30
  *                 if self.territories[origin[0], origin[1], 1] == -1:  # colonized
  *                     self.territories[origin[0], origin[1], 1] = pid
  *                     try:             # <<<<<<<<<<<<<<
@@ -2349,9 +2412,9 @@ static PyObject *__pyx_pf_3ais_6base_c_2AI_2update(CYTHON_UNUSED PyObject *__pyx
  *                     except KeyError:
  */
           }
-          __Pyx_XDECREF(__pyx_t_13); __pyx_t_13 = 0;
           __Pyx_XDECREF(__pyx_t_14); __pyx_t_14 = 0;
           __Pyx_XDECREF(__pyx_t_15); __pyx_t_15 = 0;
+          __Pyx_XDECREF(__pyx_t_16); __pyx_t_16 = 0;
           goto __pyx_L17_try_end;
           __pyx_L10_error:;
           __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
@@ -2361,74 +2424,74 @@ static PyObject *__pyx_pf_3ais_6base_c_2AI_2update(CYTHON_UNUSED PyObject *__pyx
           __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
           __Pyx_XDECREF(__pyx_t_9); __pyx_t_9 = 0;
 
-          /* "ais/base_cy.pyx":31
+          /* "ais/base_cy.pyx":32
  *                     try:
  *                         self.land[pid].add(origin)
  *                     except KeyError:             # <<<<<<<<<<<<<<
  *                         self.land[pid] = {origin}
  *                 continue
  */
-          __pyx_t_16 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_KeyError);
-          if (__pyx_t_16) {
+          __pyx_t_13 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_KeyError);
+          if (__pyx_t_13) {
             __Pyx_AddTraceback("ais.base_c.AI.update", __pyx_clineno, __pyx_lineno, __pyx_filename);
-            if (__Pyx_GetException(&__pyx_t_8, &__pyx_t_6, &__pyx_t_4) < 0) __PYX_ERR(0, 31, __pyx_L12_except_error)
+            if (__Pyx_GetException(&__pyx_t_8, &__pyx_t_7, &__pyx_t_4) < 0) __PYX_ERR(0, 32, __pyx_L12_except_error)
             __Pyx_GOTREF(__pyx_t_8);
-            __Pyx_GOTREF(__pyx_t_6);
+            __Pyx_GOTREF(__pyx_t_7);
             __Pyx_GOTREF(__pyx_t_4);
 
-            /* "ais/base_cy.pyx":32
+            /* "ais/base_cy.pyx":33
  *                         self.land[pid].add(origin)
  *                     except KeyError:
  *                         self.land[pid] = {origin}             # <<<<<<<<<<<<<<
  *                 continue
  * 
  */
-            __pyx_t_7 = PySet_New(0); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 32, __pyx_L12_except_error)
-            __Pyx_GOTREF(__pyx_t_7);
-            if (PySet_Add(__pyx_t_7, __pyx_v_origin) < 0) __PYX_ERR(0, 32, __pyx_L12_except_error)
-            __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_land); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 32, __pyx_L12_except_error)
+            __pyx_t_6 = PySet_New(0); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 33, __pyx_L12_except_error)
+            __Pyx_GOTREF(__pyx_t_6);
+            if (PySet_Add(__pyx_t_6, __pyx_v_origin) < 0) __PYX_ERR(0, 33, __pyx_L12_except_error)
+            __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_land); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 33, __pyx_L12_except_error)
             __Pyx_GOTREF(__pyx_t_5);
-            if (unlikely(PyObject_SetItem(__pyx_t_5, __pyx_v_pid, __pyx_t_7) < 0)) __PYX_ERR(0, 32, __pyx_L12_except_error)
+            if (unlikely(PyObject_SetItem(__pyx_t_5, __pyx_v_pid, __pyx_t_6) < 0)) __PYX_ERR(0, 33, __pyx_L12_except_error)
             __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-            __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
+            __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
             __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
-            __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
+            __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
             __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
             goto __pyx_L11_exception_handled;
           }
           goto __pyx_L12_except_error;
           __pyx_L12_except_error:;
 
-          /* "ais/base_cy.pyx":29
+          /* "ais/base_cy.pyx":30
  *                 if self.territories[origin[0], origin[1], 1] == -1:  # colonized
  *                     self.territories[origin[0], origin[1], 1] = pid
  *                     try:             # <<<<<<<<<<<<<<
  *                         self.land[pid].add(origin)
  *                     except KeyError:
  */
-          __Pyx_XGIVEREF(__pyx_t_13);
           __Pyx_XGIVEREF(__pyx_t_14);
           __Pyx_XGIVEREF(__pyx_t_15);
-          __Pyx_ExceptionReset(__pyx_t_13, __pyx_t_14, __pyx_t_15);
+          __Pyx_XGIVEREF(__pyx_t_16);
+          __Pyx_ExceptionReset(__pyx_t_14, __pyx_t_15, __pyx_t_16);
           goto __pyx_L1_error;
           __pyx_L11_exception_handled:;
-          __Pyx_XGIVEREF(__pyx_t_13);
           __Pyx_XGIVEREF(__pyx_t_14);
           __Pyx_XGIVEREF(__pyx_t_15);
-          __Pyx_ExceptionReset(__pyx_t_13, __pyx_t_14, __pyx_t_15);
+          __Pyx_XGIVEREF(__pyx_t_16);
+          __Pyx_ExceptionReset(__pyx_t_14, __pyx_t_15, __pyx_t_16);
           __pyx_L17_try_end:;
         }
 
-        /* "ais/base_cy.pyx":27
- *             if target is None:  # Army got destroyed or colonized
+        /* "ais/base_cy.pyx":28
  *                 self.armies[pid].pop(aid)
+ *                 self.on_army_death(pid, aid)
  *                 if self.territories[origin[0], origin[1], 1] == -1:  # colonized             # <<<<<<<<<<<<<<
  *                     self.territories[origin[0], origin[1], 1] = pid
  *                     try:
  */
       }
 
-      /* "ais/base_cy.pyx":33
+      /* "ais/base_cy.pyx":34
  *                     except KeyError:
  *                         self.land[pid] = {origin}
  *                 continue             # <<<<<<<<<<<<<<
@@ -2442,57 +2505,57 @@ static PyObject *__pyx_pf_3ais_6base_c_2AI_2update(CYTHON_UNUSED PyObject *__pyx
  * 
  *             if target is None:  # Army got destroyed or colonized             # <<<<<<<<<<<<<<
  *                 self.armies[pid].pop(aid)
- *                 if self.territories[origin[0], origin[1], 1] == -1:  # colonized
+ *                 self.on_army_death(pid, aid)
  */
     }
 
-    /* "ais/base_cy.pyx":35
+    /* "ais/base_cy.pyx":36
  *                 continue
  * 
  *             self.armies[pid][aid] = target             # <<<<<<<<<<<<<<
  *             ppid = self.territories[target[0], target[1], 1]
  *             if ppid not in (pid, -1):
  */
-    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_armies); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 35, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_armies); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 36, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_6 = __Pyx_PyObject_GetItem(__pyx_t_4, __pyx_v_pid); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 35, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_6);
+    __pyx_t_7 = __Pyx_PyObject_GetItem(__pyx_t_4, __pyx_v_pid); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 36, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_7);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(PyObject_SetItem(__pyx_t_6, __pyx_v_aid, __pyx_v_target) < 0)) __PYX_ERR(0, 35, __pyx_L1_error)
-    __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+    if (unlikely(PyObject_SetItem(__pyx_t_7, __pyx_v_aid, __pyx_v_target) < 0)) __PYX_ERR(0, 36, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-    /* "ais/base_cy.pyx":36
+    /* "ais/base_cy.pyx":37
  * 
  *             self.armies[pid][aid] = target
  *             ppid = self.territories[target[0], target[1], 1]             # <<<<<<<<<<<<<<
  *             if ppid not in (pid, -1):
  *                 self.territories[target[0], target[1], 1] = pid
  */
-    __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_territories); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 36, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_6);
-    __pyx_t_4 = __Pyx_GetItemInt(__pyx_v_target, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 36, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_8 = __Pyx_GetItemInt(__pyx_v_target, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 36, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_8);
-    __pyx_t_7 = PyTuple_New(3); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 36, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_territories); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 37, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
+    __pyx_t_4 = __Pyx_GetItemInt(__pyx_v_target, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 37, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
+    __pyx_t_8 = __Pyx_GetItemInt(__pyx_v_target, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 37, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_8);
+    __pyx_t_6 = PyTuple_New(3); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 37, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_6);
     __Pyx_GIVEREF(__pyx_t_4);
-    PyTuple_SET_ITEM(__pyx_t_7, 0, __pyx_t_4);
+    PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_4);
     __Pyx_GIVEREF(__pyx_t_8);
-    PyTuple_SET_ITEM(__pyx_t_7, 1, __pyx_t_8);
+    PyTuple_SET_ITEM(__pyx_t_6, 1, __pyx_t_8);
     __Pyx_INCREF(__pyx_int_1);
     __Pyx_GIVEREF(__pyx_int_1);
-    PyTuple_SET_ITEM(__pyx_t_7, 2, __pyx_int_1);
+    PyTuple_SET_ITEM(__pyx_t_6, 2, __pyx_int_1);
     __pyx_t_4 = 0;
     __pyx_t_8 = 0;
-    __pyx_t_8 = __Pyx_PyObject_GetItem(__pyx_t_6, __pyx_t_7); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 36, __pyx_L1_error)
+    __pyx_t_8 = __Pyx_PyObject_GetItem(__pyx_t_7, __pyx_t_6); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 37, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_8);
-    __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
+    __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     __Pyx_XDECREF_SET(__pyx_v_ppid, __pyx_t_8);
     __pyx_t_8 = 0;
 
-    /* "ais/base_cy.pyx":37
+    /* "ais/base_cy.pyx":38
  *             self.armies[pid][aid] = target
  *             ppid = self.territories[target[0], target[1], 1]
  *             if ppid not in (pid, -1):             # <<<<<<<<<<<<<<
@@ -2501,53 +2564,53 @@ static PyObject *__pyx_pf_3ais_6base_c_2AI_2update(CYTHON_UNUSED PyObject *__pyx
  */
     __Pyx_INCREF(__pyx_v_ppid);
     __pyx_t_8 = __pyx_v_ppid;
-    __pyx_t_7 = PyObject_RichCompare(__pyx_t_8, __pyx_v_pid, Py_NE); __Pyx_XGOTREF(__pyx_t_7); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 37, __pyx_L1_error)
-    __pyx_t_12 = __Pyx_PyObject_IsTrue(__pyx_t_7); if (unlikely(__pyx_t_12 < 0)) __PYX_ERR(0, 37, __pyx_L1_error)
-    __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
+    __pyx_t_6 = PyObject_RichCompare(__pyx_t_8, __pyx_v_pid, Py_NE); __Pyx_XGOTREF(__pyx_t_6); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 38, __pyx_L1_error)
+    __pyx_t_12 = __Pyx_PyObject_IsTrue(__pyx_t_6); if (unlikely(__pyx_t_12 < 0)) __PYX_ERR(0, 38, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     if (__pyx_t_12) {
     } else {
       __pyx_t_11 = __pyx_t_12;
       goto __pyx_L21_bool_binop_done;
     }
-    __pyx_t_7 = __Pyx_PyInt_NeObjC(__pyx_t_8, __pyx_int_neg_1, -1L, 0); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 37, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_7);
-    __pyx_t_12 = __Pyx_PyObject_IsTrue(__pyx_t_7); if (unlikely(__pyx_t_12 < 0)) __PYX_ERR(0, 37, __pyx_L1_error)
-    __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
+    __pyx_t_6 = __Pyx_PyInt_NeObjC(__pyx_t_8, __pyx_int_neg_1, -1L, 0); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 38, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_6);
+    __pyx_t_12 = __Pyx_PyObject_IsTrue(__pyx_t_6); if (unlikely(__pyx_t_12 < 0)) __PYX_ERR(0, 38, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     __pyx_t_11 = __pyx_t_12;
     __pyx_L21_bool_binop_done:;
     __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
     __pyx_t_12 = (__pyx_t_11 != 0);
     if (__pyx_t_12) {
 
-      /* "ais/base_cy.pyx":38
+      /* "ais/base_cy.pyx":39
  *             ppid = self.territories[target[0], target[1], 1]
  *             if ppid not in (pid, -1):
  *                 self.territories[target[0], target[1], 1] = pid             # <<<<<<<<<<<<<<
  *                 try:
  *                     self.land[ppid].remove(target)
  */
-      __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_territories); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 38, __pyx_L1_error)
+      __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_territories); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 39, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_8);
-      __pyx_t_7 = __Pyx_GetItemInt(__pyx_v_target, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 38, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_7);
-      __pyx_t_6 = __Pyx_GetItemInt(__pyx_v_target, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 38, __pyx_L1_error)
+      __pyx_t_6 = __Pyx_GetItemInt(__pyx_v_target, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 39, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_6);
-      __pyx_t_4 = PyTuple_New(3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 38, __pyx_L1_error)
+      __pyx_t_7 = __Pyx_GetItemInt(__pyx_v_target, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 39, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_7);
+      __pyx_t_4 = PyTuple_New(3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 39, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
-      __Pyx_GIVEREF(__pyx_t_7);
-      PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_7);
       __Pyx_GIVEREF(__pyx_t_6);
-      PyTuple_SET_ITEM(__pyx_t_4, 1, __pyx_t_6);
+      PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_6);
+      __Pyx_GIVEREF(__pyx_t_7);
+      PyTuple_SET_ITEM(__pyx_t_4, 1, __pyx_t_7);
       __Pyx_INCREF(__pyx_int_1);
       __Pyx_GIVEREF(__pyx_int_1);
       PyTuple_SET_ITEM(__pyx_t_4, 2, __pyx_int_1);
-      __pyx_t_7 = 0;
       __pyx_t_6 = 0;
-      if (unlikely(PyObject_SetItem(__pyx_t_8, __pyx_t_4, __pyx_v_pid) < 0)) __PYX_ERR(0, 38, __pyx_L1_error)
+      __pyx_t_7 = 0;
+      if (unlikely(PyObject_SetItem(__pyx_t_8, __pyx_t_4, __pyx_v_pid) < 0)) __PYX_ERR(0, 39, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-      /* "ais/base_cy.pyx":39
+      /* "ais/base_cy.pyx":40
  *             if ppid not in (pid, -1):
  *                 self.territories[target[0], target[1], 1] = pid
  *                 try:             # <<<<<<<<<<<<<<
@@ -2557,45 +2620,45 @@ static PyObject *__pyx_pf_3ais_6base_c_2AI_2update(CYTHON_UNUSED PyObject *__pyx
       {
         __Pyx_PyThreadState_declare
         __Pyx_PyThreadState_assign
-        __Pyx_ExceptionSave(&__pyx_t_15, &__pyx_t_14, &__pyx_t_13);
+        __Pyx_ExceptionSave(&__pyx_t_16, &__pyx_t_15, &__pyx_t_14);
+        __Pyx_XGOTREF(__pyx_t_16);
         __Pyx_XGOTREF(__pyx_t_15);
         __Pyx_XGOTREF(__pyx_t_14);
-        __Pyx_XGOTREF(__pyx_t_13);
         /*try:*/ {
 
-          /* "ais/base_cy.pyx":40
+          /* "ais/base_cy.pyx":41
  *                 self.territories[target[0], target[1], 1] = pid
  *                 try:
  *                     self.land[ppid].remove(target)             # <<<<<<<<<<<<<<
  *                 except KeyError:
  *                     pass
  */
-          __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_land); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 40, __pyx_L23_error)
+          __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_land); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 41, __pyx_L23_error)
           __Pyx_GOTREF(__pyx_t_8);
-          __pyx_t_6 = __Pyx_PyObject_GetItem(__pyx_t_8, __pyx_v_ppid); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 40, __pyx_L23_error)
-          __Pyx_GOTREF(__pyx_t_6);
+          __pyx_t_7 = __Pyx_PyObject_GetItem(__pyx_t_8, __pyx_v_ppid); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 41, __pyx_L23_error)
+          __Pyx_GOTREF(__pyx_t_7);
           __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-          __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_remove); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 40, __pyx_L23_error)
+          __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_remove); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 41, __pyx_L23_error)
           __Pyx_GOTREF(__pyx_t_8);
-          __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-          __pyx_t_6 = NULL;
+          __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
+          __pyx_t_7 = NULL;
           if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_8))) {
-            __pyx_t_6 = PyMethod_GET_SELF(__pyx_t_8);
-            if (likely(__pyx_t_6)) {
+            __pyx_t_7 = PyMethod_GET_SELF(__pyx_t_8);
+            if (likely(__pyx_t_7)) {
               PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_8);
-              __Pyx_INCREF(__pyx_t_6);
+              __Pyx_INCREF(__pyx_t_7);
               __Pyx_INCREF(function);
               __Pyx_DECREF_SET(__pyx_t_8, function);
             }
           }
-          __pyx_t_4 = (__pyx_t_6) ? __Pyx_PyObject_Call2Args(__pyx_t_8, __pyx_t_6, __pyx_v_target) : __Pyx_PyObject_CallOneArg(__pyx_t_8, __pyx_v_target);
-          __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
-          if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 40, __pyx_L23_error)
+          __pyx_t_4 = (__pyx_t_7) ? __Pyx_PyObject_Call2Args(__pyx_t_8, __pyx_t_7, __pyx_v_target) : __Pyx_PyObject_CallOneArg(__pyx_t_8, __pyx_v_target);
+          __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
+          if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 41, __pyx_L23_error)
           __Pyx_GOTREF(__pyx_t_4);
           __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
           __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-          /* "ais/base_cy.pyx":39
+          /* "ais/base_cy.pyx":40
  *             if ppid not in (pid, -1):
  *                 self.territories[target[0], target[1], 1] = pid
  *                 try:             # <<<<<<<<<<<<<<
@@ -2603,9 +2666,9 @@ static PyObject *__pyx_pf_3ais_6base_c_2AI_2update(CYTHON_UNUSED PyObject *__pyx
  *                 except KeyError:
  */
         }
+        __Pyx_XDECREF(__pyx_t_16); __pyx_t_16 = 0;
         __Pyx_XDECREF(__pyx_t_15); __pyx_t_15 = 0;
         __Pyx_XDECREF(__pyx_t_14); __pyx_t_14 = 0;
-        __Pyx_XDECREF(__pyx_t_13); __pyx_t_13 = 0;
         goto __pyx_L30_try_end;
         __pyx_L23_error:;
         __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
@@ -2615,42 +2678,42 @@ static PyObject *__pyx_pf_3ais_6base_c_2AI_2update(CYTHON_UNUSED PyObject *__pyx
         __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
         __Pyx_XDECREF(__pyx_t_9); __pyx_t_9 = 0;
 
-        /* "ais/base_cy.pyx":41
+        /* "ais/base_cy.pyx":42
  *                 try:
  *                     self.land[ppid].remove(target)
  *                 except KeyError:             # <<<<<<<<<<<<<<
  *                     pass
  *                 try:
  */
-        __pyx_t_16 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_KeyError);
-        if (__pyx_t_16) {
+        __pyx_t_13 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_KeyError);
+        if (__pyx_t_13) {
           __Pyx_ErrRestore(0,0,0);
           goto __pyx_L24_exception_handled;
         }
         goto __pyx_L25_except_error;
         __pyx_L25_except_error:;
 
-        /* "ais/base_cy.pyx":39
+        /* "ais/base_cy.pyx":40
  *             if ppid not in (pid, -1):
  *                 self.territories[target[0], target[1], 1] = pid
  *                 try:             # <<<<<<<<<<<<<<
  *                     self.land[ppid].remove(target)
  *                 except KeyError:
  */
+        __Pyx_XGIVEREF(__pyx_t_16);
         __Pyx_XGIVEREF(__pyx_t_15);
         __Pyx_XGIVEREF(__pyx_t_14);
-        __Pyx_XGIVEREF(__pyx_t_13);
-        __Pyx_ExceptionReset(__pyx_t_15, __pyx_t_14, __pyx_t_13);
+        __Pyx_ExceptionReset(__pyx_t_16, __pyx_t_15, __pyx_t_14);
         goto __pyx_L1_error;
         __pyx_L24_exception_handled:;
+        __Pyx_XGIVEREF(__pyx_t_16);
         __Pyx_XGIVEREF(__pyx_t_15);
         __Pyx_XGIVEREF(__pyx_t_14);
-        __Pyx_XGIVEREF(__pyx_t_13);
-        __Pyx_ExceptionReset(__pyx_t_15, __pyx_t_14, __pyx_t_13);
+        __Pyx_ExceptionReset(__pyx_t_16, __pyx_t_15, __pyx_t_14);
         __pyx_L30_try_end:;
       }
 
-      /* "ais/base_cy.pyx":43
+      /* "ais/base_cy.pyx":44
  *                 except KeyError:
  *                     pass
  *                 try:             # <<<<<<<<<<<<<<
@@ -2660,45 +2723,45 @@ static PyObject *__pyx_pf_3ais_6base_c_2AI_2update(CYTHON_UNUSED PyObject *__pyx
       {
         __Pyx_PyThreadState_declare
         __Pyx_PyThreadState_assign
-        __Pyx_ExceptionSave(&__pyx_t_13, &__pyx_t_14, &__pyx_t_15);
-        __Pyx_XGOTREF(__pyx_t_13);
+        __Pyx_ExceptionSave(&__pyx_t_14, &__pyx_t_15, &__pyx_t_16);
         __Pyx_XGOTREF(__pyx_t_14);
         __Pyx_XGOTREF(__pyx_t_15);
+        __Pyx_XGOTREF(__pyx_t_16);
         /*try:*/ {
 
-          /* "ais/base_cy.pyx":44
+          /* "ais/base_cy.pyx":45
  *                     pass
  *                 try:
  *                     self.land[pid].add(target)             # <<<<<<<<<<<<<<
  *                 except KeyError:
  *                     self.land[pid] = {target}
  */
-          __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_land); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 44, __pyx_L31_error)
+          __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_land); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 45, __pyx_L31_error)
           __Pyx_GOTREF(__pyx_t_8);
-          __pyx_t_6 = __Pyx_PyObject_GetItem(__pyx_t_8, __pyx_v_pid); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 44, __pyx_L31_error)
-          __Pyx_GOTREF(__pyx_t_6);
+          __pyx_t_7 = __Pyx_PyObject_GetItem(__pyx_t_8, __pyx_v_pid); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 45, __pyx_L31_error)
+          __Pyx_GOTREF(__pyx_t_7);
           __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-          __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_add); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 44, __pyx_L31_error)
+          __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_add); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 45, __pyx_L31_error)
           __Pyx_GOTREF(__pyx_t_8);
-          __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-          __pyx_t_6 = NULL;
+          __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
+          __pyx_t_7 = NULL;
           if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_8))) {
-            __pyx_t_6 = PyMethod_GET_SELF(__pyx_t_8);
-            if (likely(__pyx_t_6)) {
+            __pyx_t_7 = PyMethod_GET_SELF(__pyx_t_8);
+            if (likely(__pyx_t_7)) {
               PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_8);
-              __Pyx_INCREF(__pyx_t_6);
+              __Pyx_INCREF(__pyx_t_7);
               __Pyx_INCREF(function);
               __Pyx_DECREF_SET(__pyx_t_8, function);
             }
           }
-          __pyx_t_4 = (__pyx_t_6) ? __Pyx_PyObject_Call2Args(__pyx_t_8, __pyx_t_6, __pyx_v_target) : __Pyx_PyObject_CallOneArg(__pyx_t_8, __pyx_v_target);
-          __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
-          if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 44, __pyx_L31_error)
+          __pyx_t_4 = (__pyx_t_7) ? __Pyx_PyObject_Call2Args(__pyx_t_8, __pyx_t_7, __pyx_v_target) : __Pyx_PyObject_CallOneArg(__pyx_t_8, __pyx_v_target);
+          __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
+          if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 45, __pyx_L31_error)
           __Pyx_GOTREF(__pyx_t_4);
           __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
           __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-          /* "ais/base_cy.pyx":43
+          /* "ais/base_cy.pyx":44
  *                 except KeyError:
  *                     pass
  *                 try:             # <<<<<<<<<<<<<<
@@ -2706,9 +2769,9 @@ static PyObject *__pyx_pf_3ais_6base_c_2AI_2update(CYTHON_UNUSED PyObject *__pyx
  *                 except KeyError:
  */
         }
-        __Pyx_XDECREF(__pyx_t_13); __pyx_t_13 = 0;
         __Pyx_XDECREF(__pyx_t_14); __pyx_t_14 = 0;
         __Pyx_XDECREF(__pyx_t_15); __pyx_t_15 = 0;
+        __Pyx_XDECREF(__pyx_t_16); __pyx_t_16 = 0;
         goto __pyx_L38_try_end;
         __pyx_L31_error:;
         __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
@@ -2718,62 +2781,65 @@ static PyObject *__pyx_pf_3ais_6base_c_2AI_2update(CYTHON_UNUSED PyObject *__pyx
         __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
         __Pyx_XDECREF(__pyx_t_9); __pyx_t_9 = 0;
 
-        /* "ais/base_cy.pyx":45
+        /* "ais/base_cy.pyx":46
  *                 try:
  *                     self.land[pid].add(target)
  *                 except KeyError:             # <<<<<<<<<<<<<<
  *                     self.land[pid] = {target}
+ * 
  */
-        __pyx_t_16 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_KeyError);
-        if (__pyx_t_16) {
+        __pyx_t_13 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_KeyError);
+        if (__pyx_t_13) {
           __Pyx_AddTraceback("ais.base_c.AI.update", __pyx_clineno, __pyx_lineno, __pyx_filename);
-          if (__Pyx_GetException(&__pyx_t_4, &__pyx_t_8, &__pyx_t_6) < 0) __PYX_ERR(0, 45, __pyx_L33_except_error)
+          if (__Pyx_GetException(&__pyx_t_4, &__pyx_t_8, &__pyx_t_7) < 0) __PYX_ERR(0, 46, __pyx_L33_except_error)
           __Pyx_GOTREF(__pyx_t_4);
           __Pyx_GOTREF(__pyx_t_8);
-          __Pyx_GOTREF(__pyx_t_6);
+          __Pyx_GOTREF(__pyx_t_7);
 
-          /* "ais/base_cy.pyx":46
+          /* "ais/base_cy.pyx":47
  *                     self.land[pid].add(target)
  *                 except KeyError:
  *                     self.land[pid] = {target}             # <<<<<<<<<<<<<<
+ * 
+ *     def on_army_death(self, pid, aid):
  */
-          __pyx_t_7 = PySet_New(0); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 46, __pyx_L33_except_error)
-          __Pyx_GOTREF(__pyx_t_7);
-          if (PySet_Add(__pyx_t_7, __pyx_v_target) < 0) __PYX_ERR(0, 46, __pyx_L33_except_error)
-          __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_land); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 46, __pyx_L33_except_error)
+          __pyx_t_6 = PySet_New(0); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 47, __pyx_L33_except_error)
+          __Pyx_GOTREF(__pyx_t_6);
+          if (PySet_Add(__pyx_t_6, __pyx_v_target) < 0) __PYX_ERR(0, 47, __pyx_L33_except_error)
+          __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_land); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 47, __pyx_L33_except_error)
           __Pyx_GOTREF(__pyx_t_5);
-          if (unlikely(PyObject_SetItem(__pyx_t_5, __pyx_v_pid, __pyx_t_7) < 0)) __PYX_ERR(0, 46, __pyx_L33_except_error)
+          if (unlikely(PyObject_SetItem(__pyx_t_5, __pyx_v_pid, __pyx_t_6) < 0)) __PYX_ERR(0, 47, __pyx_L33_except_error)
           __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-          __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
+          __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
           __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
           __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
-          __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
+          __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
           goto __pyx_L32_exception_handled;
         }
         goto __pyx_L33_except_error;
         __pyx_L33_except_error:;
 
-        /* "ais/base_cy.pyx":43
+        /* "ais/base_cy.pyx":44
  *                 except KeyError:
  *                     pass
  *                 try:             # <<<<<<<<<<<<<<
  *                     self.land[pid].add(target)
  *                 except KeyError:
  */
-        __Pyx_XGIVEREF(__pyx_t_13);
         __Pyx_XGIVEREF(__pyx_t_14);
         __Pyx_XGIVEREF(__pyx_t_15);
-        __Pyx_ExceptionReset(__pyx_t_13, __pyx_t_14, __pyx_t_15);
+        __Pyx_XGIVEREF(__pyx_t_16);
+        __Pyx_ExceptionReset(__pyx_t_14, __pyx_t_15, __pyx_t_16);
         goto __pyx_L1_error;
         __pyx_L32_exception_handled:;
-        __Pyx_XGIVEREF(__pyx_t_13);
         __Pyx_XGIVEREF(__pyx_t_14);
         __Pyx_XGIVEREF(__pyx_t_15);
-        __Pyx_ExceptionReset(__pyx_t_13, __pyx_t_14, __pyx_t_15);
+        __Pyx_XGIVEREF(__pyx_t_16);
+        __Pyx_ExceptionReset(__pyx_t_14, __pyx_t_15, __pyx_t_16);
         __pyx_L38_try_end:;
       }
 
-      /* "ais/base_cy.pyx":37
+      /* "ais/base_cy.pyx":38
  *             self.armies[pid][aid] = target
  *             ppid = self.territories[target[0], target[1], 1]
  *             if ppid not in (pid, -1):             # <<<<<<<<<<<<<<
@@ -2820,6 +2886,101 @@ static PyObject *__pyx_pf_3ais_6base_c_2AI_2update(CYTHON_UNUSED PyObject *__pyx
   __Pyx_XDECREF(__pyx_v_origin);
   __Pyx_XDECREF(__pyx_v_target);
   __Pyx_XDECREF(__pyx_v_ppid);
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "ais/base_cy.pyx":49
+ *                     self.land[pid] = {target}
+ * 
+ *     def on_army_death(self, pid, aid):             # <<<<<<<<<<<<<<
+ *         pass
+ */
+
+/* Python wrapper */
+static PyObject *__pyx_pw_3ais_6base_c_2AI_5on_army_death(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyMethodDef __pyx_mdef_3ais_6base_c_2AI_5on_army_death = {"on_army_death", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_3ais_6base_c_2AI_5on_army_death, METH_VARARGS|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_3ais_6base_c_2AI_5on_army_death(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+  CYTHON_UNUSED PyObject *__pyx_v_self = 0;
+  CYTHON_UNUSED PyObject *__pyx_v_pid = 0;
+  CYTHON_UNUSED PyObject *__pyx_v_aid = 0;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  PyObject *__pyx_r = 0;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("on_army_death (wrapper)", 0);
+  {
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_self,&__pyx_n_s_pid,&__pyx_n_s_aid,0};
+    PyObject* values[3] = {0,0,0};
+    if (unlikely(__pyx_kwds)) {
+      Py_ssize_t kw_args;
+      const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
+      switch (pos_args) {
+        case  3: values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
+        CYTHON_FALLTHROUGH;
+        case  2: values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
+        CYTHON_FALLTHROUGH;
+        case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+        CYTHON_FALLTHROUGH;
+        case  0: break;
+        default: goto __pyx_L5_argtuple_error;
+      }
+      kw_args = PyDict_Size(__pyx_kwds);
+      switch (pos_args) {
+        case  0:
+        if (likely((values[0] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_self)) != 0)) kw_args--;
+        else goto __pyx_L5_argtuple_error;
+        CYTHON_FALLTHROUGH;
+        case  1:
+        if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_pid)) != 0)) kw_args--;
+        else {
+          __Pyx_RaiseArgtupleInvalid("on_army_death", 1, 3, 3, 1); __PYX_ERR(0, 49, __pyx_L3_error)
+        }
+        CYTHON_FALLTHROUGH;
+        case  2:
+        if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_aid)) != 0)) kw_args--;
+        else {
+          __Pyx_RaiseArgtupleInvalid("on_army_death", 1, 3, 3, 2); __PYX_ERR(0, 49, __pyx_L3_error)
+        }
+      }
+      if (unlikely(kw_args > 0)) {
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "on_army_death") < 0)) __PYX_ERR(0, 49, __pyx_L3_error)
+      }
+    } else if (PyTuple_GET_SIZE(__pyx_args) != 3) {
+      goto __pyx_L5_argtuple_error;
+    } else {
+      values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+      values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
+      values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
+    }
+    __pyx_v_self = values[0];
+    __pyx_v_pid = values[1];
+    __pyx_v_aid = values[2];
+  }
+  goto __pyx_L4_argument_unpacking_done;
+  __pyx_L5_argtuple_error:;
+  __Pyx_RaiseArgtupleInvalid("on_army_death", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 49, __pyx_L3_error)
+  __pyx_L3_error:;
+  __Pyx_AddTraceback("ais.base_c.AI.on_army_death", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_RefNannyFinishContext();
+  return NULL;
+  __pyx_L4_argument_unpacking_done:;
+  __pyx_r = __pyx_pf_3ais_6base_c_2AI_4on_army_death(__pyx_self, __pyx_v_self, __pyx_v_pid, __pyx_v_aid);
+
+  /* function exit code */
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_3ais_6base_c_2AI_4on_army_death(CYTHON_UNUSED PyObject *__pyx_self, CYTHON_UNUSED PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v_pid, CYTHON_UNUSED PyObject *__pyx_v_aid) {
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("on_army_death", 0);
+
+  /* function exit code */
+  __pyx_r = Py_None; __Pyx_INCREF(Py_None);
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
@@ -3104,6 +3265,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_AI, __pyx_k_AI, sizeof(__pyx_k_AI), 0, 0, 1, 1},
   {&__pyx_n_s_AI___init, __pyx_k_AI___init, sizeof(__pyx_k_AI___init), 0, 0, 1, 1},
   {&__pyx_n_s_AI___init___locals_genexpr, __pyx_k_AI___init___locals_genexpr, sizeof(__pyx_k_AI___init___locals_genexpr), 0, 0, 1, 1},
+  {&__pyx_n_s_AI_on_army_death, __pyx_k_AI_on_army_death, sizeof(__pyx_k_AI_on_army_death), 0, 0, 1, 1},
   {&__pyx_n_s_AI_update, __pyx_k_AI_update, sizeof(__pyx_k_AI_update), 0, 0, 1, 1},
   {&__pyx_n_s_BORDER_CHECKS, __pyx_k_BORDER_CHECKS, sizeof(__pyx_k_BORDER_CHECKS), 0, 0, 1, 1},
   {&__pyx_n_s_BaseAI, __pyx_k_BaseAI, sizeof(__pyx_k_BaseAI), 0, 0, 1, 1},
@@ -3131,6 +3293,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_module, __pyx_k_module, sizeof(__pyx_k_module), 0, 0, 1, 1},
   {&__pyx_n_s_name, __pyx_k_name, sizeof(__pyx_k_name), 0, 0, 1, 1},
   {&__pyx_n_s_name_2, __pyx_k_name_2, sizeof(__pyx_k_name_2), 0, 0, 1, 1},
+  {&__pyx_n_s_on_army_death, __pyx_k_on_army_death, sizeof(__pyx_k_on_army_death), 0, 0, 1, 1},
   {&__pyx_n_s_origin, __pyx_k_origin, sizeof(__pyx_k_origin), 0, 0, 1, 1},
   {&__pyx_n_s_pid, __pyx_k_pid, sizeof(__pyx_k_pid), 0, 0, 1, 1},
   {&__pyx_n_s_pop, __pyx_k_pop, sizeof(__pyx_k_pop), 0, 0, 1, 1},
@@ -3149,7 +3312,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {0, 0, 0, 0, 0, 0, 0}
 };
 static CYTHON_SMALL_CODE int __Pyx_InitCachedBuiltins(void) {
-  __pyx_builtin_KeyError = __Pyx_GetBuiltinName(__pyx_n_s_KeyError); if (!__pyx_builtin_KeyError) __PYX_ERR(0, 31, __pyx_L1_error)
+  __pyx_builtin_KeyError = __Pyx_GetBuiltinName(__pyx_n_s_KeyError); if (!__pyx_builtin_KeyError) __PYX_ERR(0, 32, __pyx_L1_error)
   return 0;
   __pyx_L1_error:;
   return -1;
@@ -3259,6 +3422,17 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__19);
   __Pyx_GIVEREF(__pyx_tuple__19);
   __pyx_codeobj__20 = (PyObject*)__Pyx_PyCode_New(2, 0, 7, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__19, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_ais_base_cy_pyx, __pyx_n_s_update, 20, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__20)) __PYX_ERR(0, 20, __pyx_L1_error)
+
+  /* "ais/base_cy.pyx":49
+ *                     self.land[pid] = {target}
+ * 
+ *     def on_army_death(self, pid, aid):             # <<<<<<<<<<<<<<
+ *         pass
+ */
+  __pyx_tuple__21 = PyTuple_Pack(3, __pyx_n_s_self, __pyx_n_s_pid, __pyx_n_s_aid); if (unlikely(!__pyx_tuple__21)) __PYX_ERR(0, 49, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__21);
+  __Pyx_GIVEREF(__pyx_tuple__21);
+  __pyx_codeobj__22 = (PyObject*)__Pyx_PyCode_New(3, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__21, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_ais_base_cy_pyx, __pyx_n_s_on_army_death, 49, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__22)) __PYX_ERR(0, 49, __pyx_L1_error)
   __Pyx_RefNannyFinishContext();
   return 0;
   __pyx_L1_error:;
@@ -3639,6 +3813,17 @@ if (!__Pyx_RefNanny) {
   __pyx_t_1 = __Pyx_CyFunction_New(&__pyx_mdef_3ais_6base_c_2AI_3update, 0, __pyx_n_s_AI_update, NULL, __pyx_n_s_ais_base_c, __pyx_d, ((PyObject *)__pyx_codeobj__20)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 20, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_update, __pyx_t_1) < 0) __PYX_ERR(0, 20, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+  /* "ais/base_cy.pyx":49
+ *                     self.land[pid] = {target}
+ * 
+ *     def on_army_death(self, pid, aid):             # <<<<<<<<<<<<<<
+ *         pass
+ */
+  __pyx_t_1 = __Pyx_CyFunction_New(&__pyx_mdef_3ais_6base_c_2AI_5on_army_death, 0, __pyx_n_s_AI_on_army_death, NULL, __pyx_n_s_ais_base_c, __pyx_d, ((PyObject *)__pyx_codeobj__22)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 49, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_on_army_death, __pyx_t_1) < 0) __PYX_ERR(0, 49, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "ais/base_cy.pyx":6

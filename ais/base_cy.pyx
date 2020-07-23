@@ -24,6 +24,7 @@ class AI:
 
             if target is None:  # Army got destroyed or colonized
                 self.armies[pid].pop(aid)
+                self.on_army_death(pid, aid)
                 if self.territories[origin[0], origin[1], 1] == -1:  # colonized
                     self.territories[origin[0], origin[1], 1] = pid
                     try:
@@ -44,3 +45,6 @@ class AI:
                     self.land[pid].add(target)
                 except KeyError:
                     self.land[pid] = {target}
+
+    def on_army_death(self, pid, aid):
+        pass
